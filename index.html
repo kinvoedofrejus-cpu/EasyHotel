@@ -1,0 +1,2234 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EasyHotel — Gestion d'Hôtel</title>
+<meta name="description" content="Logiciel de gestion d'hôtel EasyHotel : chambres, réservations, facturation et ménage.">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="theme-color" content="#0a1a3f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="EasyHotel">
+<style>
+:root{
+  --kraft:#eef2fb;
+  --kraft-dark:#dbe4f7;
+  --paper:#ffffff;
+  --ink:#12318f;
+  --ink-light:#2f6fe0;
+  --bleu-nuit:#0a1a3f;
+  --bleu-nuit-2:#123a94;
+  --or:#f2a20c;
+  --or-dark:#cf8300;
+  --or-clair:#ffc94d;
+  --sauge:#16a34a;
+  --alerte-bg:#fdecea;
+  --alerte-txt:#b3261e;
+  --texte:#1a2233;
+  --texte-clair:#5c6884;
+  --ligne:#dde3f2;
+  --radius:16px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif;
+  background:linear-gradient(160deg, var(--bleu-nuit) 0%, var(--bleu-nuit-2) 48%, #1b4fc4 100%);
+  color:var(--texte);
+  min-height:100vh;
+}
+h1,h2,h3,.brand{font-family:Georgia,"Times New Roman",serif;}
+button{font-family:inherit;cursor:pointer;}
+input,select,textarea{font-family:inherit;}
+
+/* ---------- ECRAN DE CONNEXION ---------- */
+#ecran-connexion{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:
+    radial-gradient(circle at 22% 20%, rgba(242,162,12,0.35), transparent 42%),
+    radial-gradient(circle at 82% 78%, rgba(47,111,224,0.45), transparent 45%);
+  flex-direction:column;
+  padding:24px;
+}
+.carte-connexion-enveloppe{
+  padding:3px;
+  border-radius:32px;
+  background:linear-gradient(135deg, #ffd166 0%, #f2a20c 30%, #2f6fe0 65%, #0a1a3f 100%);
+  box-shadow: 0 25px 70px rgba(4,12,35,0.55), 0 0 0 1px rgba(255,255,255,0.06);
+  animation: lueur-bord 5s ease-in-out infinite;
+}
+@keyframes lueur-bord{
+  0%,100%{ box-shadow: 0 25px 70px rgba(4,12,35,0.55), 0 0 32px rgba(242,162,12,0.25); }
+  50%{ box-shadow: 0 25px 70px rgba(4,12,35,0.55), 0 0 46px rgba(47,111,224,0.4); }
+}
+.carte-connexion{
+  background:var(--paper);
+  border-radius:29px;
+  padding:48px 44px;
+  width:380px;
+  position:relative;
+}
+.carte-connexion::before{
+  content:"";
+  position:absolute;
+  top:-10px; left:36px;
+  width:44px; height:20px;
+  background:linear-gradient(135deg, var(--or-clair), var(--or));
+  border-radius:3px;
+  transform:rotate(-3deg);
+  box-shadow:0 3px 10px rgba(242,162,12,0.45);
+}
+.brand{
+  font-size:26px;
+  font-weight:600;
+  color:var(--ink);
+  margin:0 0 2px 0;
+}
+.brand-sub{
+  color:var(--texte-clair);
+  font-size:13px;
+  margin:0 0 30px 0;
+  letter-spacing:0.03em;
+  text-transform:uppercase;
+}
+.champ{margin-bottom:18px;}
+.champ label{
+  display:block;
+  font-size:12px;
+  font-weight:600;
+  color:var(--ink);
+  margin-bottom:6px;
+  text-transform:uppercase;
+  letter-spacing:0.04em;
+}
+.champ input, .champ select, .champ textarea{
+  width:100%;
+  padding:11px 13px;
+  border:1.5px solid var(--ligne);
+  border-radius:10px;
+  font-size:14.5px;
+  background:#fff;
+  color:var(--texte);
+  transition:border-color .15s;
+}
+.champ input:focus, .champ select:focus, .champ textarea:focus{
+  outline:none;
+  border-color:var(--ink-light);
+  box-shadow:0 0 0 3px rgba(47,111,224,0.15);
+}
+.btn{
+  border:none;
+  border-radius:12px;
+  padding:12px 18px;
+  font-size:14.5px;
+  font-weight:700;
+  transition: transform .1s, box-shadow .18s, filter .15s;
+}
+.btn:active{transform:translateY(1px) scale(0.99);}
+.btn-primaire{
+  background:linear-gradient(135deg, #3b7dff 0%, var(--ink) 55%, var(--bleu-nuit) 100%);
+  color:#fff; width:100%; padding:16px; font-size:16px; letter-spacing:0.02em;
+  box-shadow:0 10px 24px rgba(18,49,143,0.45);
+}
+.btn-primaire:hover{filter:brightness(1.08); box-shadow:0 12px 30px rgba(18,49,143,0.55); transform:translateY(-1px);}
+.btn-accent{
+  background:linear-gradient(135deg, var(--or-clair) 0%, var(--or) 60%, var(--or-dark) 100%);
+  color:#fff; font-weight:700;
+  box-shadow:0 8px 18px rgba(242,162,12,0.4);
+}
+.btn-accent:hover{filter:brightness(1.07); box-shadow:0 10px 22px rgba(242,162,12,0.5); transform:translateY(-1px);}
+.btn-discret{background:var(--kraft); color:var(--texte);}
+.btn-discret:hover{background:var(--kraft-dark);}
+.btn-danger{background:transparent; color:var(--or-dark); border:1.5px solid var(--or);}
+.btn-danger:hover{background:var(--alerte-bg);}
+.aide-compte{
+  margin-top:22px;
+  font-size:11.5px;
+  color:var(--texte-clair);
+  text-align:center;
+}
+.erreur-connexion{
+  color:var(--or-dark);
+  font-size:13px;
+  margin-top:10px;
+  min-height:16px;
+}
+
+/* ---------- APPLICATION PRINCIPALE ---------- */
+#app{display:none; min-height:100vh; background:var(--paper);}
+.barre-haut{
+  background:linear-gradient(120deg, var(--bleu-nuit) 0%, var(--bleu-nuit-2) 55%, var(--ink-light) 130%);
+  color:#fff;
+  padding:14px 26px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  box-shadow:0 4px 18px rgba(10,26,63,0.35);
+  position:relative;
+  z-index:5;
+}
+.barre-haut .brand{color:#fff; font-size:19px; margin:0;}
+.barre-haut .brand span{color:var(--or-clair);}
+.info-utilisateur{font-size:13px; display:flex; align-items:center; gap:14px;}
+.pastille-role{
+  background:linear-gradient(135deg, var(--or-clair), var(--or));
+  padding:3px 10px;
+  border-radius:20px;
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:0.04em;
+  font-weight:700;
+}
+.lien-deconnexion{
+  color:#fff; text-decoration:none; font-size:13px;
+  background:linear-gradient(135deg, var(--or-clair), var(--or));
+  padding:7px 14px; border-radius:20px; font-weight:700; border:none;
+  box-shadow:0 4px 10px rgba(242,162,12,0.35);
+}
+.lien-deconnexion:hover{filter:brightness(1.08);}
+
+.onglets{
+  display:flex;
+  gap:2px;
+  background:var(--kraft-dark);
+  padding:0 26px;
+  overflow-x:auto;
+}
+.onglet{
+  padding:12px 20px;
+  background:var(--kraft);
+  border:none;
+  border-radius:10px 10px 0 0;
+  font-size:13.5px;
+  font-weight:700;
+  color:var(--texte-clair);
+  white-space:nowrap;
+  position:relative;
+  top:1px;
+}
+.onglet.actif{
+  background:var(--paper);
+  color:var(--ink);
+  box-shadow:inset 0 3px 0 var(--or);
+}
+.onglet:hover:not(.actif){background:#cfdcf6;}
+
+.contenu{
+  background:var(--paper);
+  min-height:calc(100vh - 100px);
+  padding:26px;
+}
+.vue{display:none;}
+.vue.active{display:block;}
+
+.entete-vue{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:12px;
+  margin-bottom:20px;
+}
+.entete-vue h2{font-size:20px; color:var(--ink); margin:0;}
+.barre-actions{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  background:#fff;
+  border-radius:12px;
+  overflow:hidden;
+  box-shadow:0 2px 10px rgba(18,49,143,0.08);
+}
+thead th{
+  background:var(--kraft);
+  color:var(--ink);
+  text-align:left;
+  font-size:11.5px;
+  text-transform:uppercase;
+  letter-spacing:0.03em;
+  padding:11px 14px;
+  border-bottom:2px solid var(--kraft-dark);
+}
+tbody td{
+  padding:11px 14px;
+  border-bottom:1px solid var(--ligne);
+  font-size:13.5px;
+}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:#f2f6fd;}
+tr.alerte-ligne{background:var(--alerte-bg);}
+tr.alerte-ligne:hover{background:#f7d5cb;}
+
+/* ---------- RECEPTION / CHAMBRES ---------- */
+.legende-statuts{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:18px; font-size:12.5px; color:var(--texte-clair);}
+.legende-statuts span{display:inline-flex; align-items:center; gap:6px;}
+.puce{width:11px; height:11px; border-radius:50%; display:inline-block;}
+.puce.libre{background:#16a34a;}
+.puce.occupee{background:#2f6fe0;}
+.puce.sale{background:#f2a20c;}
+.puce.maintenance{background:#b3261e;}
+
+.grille-chambres{display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:14px;}
+.carte-chambre{
+  background:#fff; border-radius:14px; padding:16px; border:1px solid var(--ligne);
+  cursor:pointer; box-shadow:0 2px 10px rgba(18,49,143,0.06); transition:transform .12s, box-shadow .12s;
+  border-left:5px solid #ccc;
+}
+.carte-chambre:hover{transform:translateY(-2px); box-shadow:0 8px 18px rgba(18,49,143,0.16);}
+.carte-chambre.libre{border-left-color:#16a34a;}
+.carte-chambre.occupee{border-left-color:#2f6fe0;}
+.carte-chambre.sale{border-left-color:#f2a20c;}
+.carte-chambre.maintenance{border-left-color:#b3261e;}
+.carte-chambre .numero{font-size:21px;font-weight:700;color:var(--ink);font-family:Georgia,serif;}
+.carte-chambre .type{font-size:12px;color:var(--texte-clair);margin:2px 0 12px;}
+.statut-pastille{display:inline-block;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.03em;}
+.statut-pastille.libre{background:#e7f6ec;color:#166534;}
+.statut-pastille.occupee{background:#e3ecff;color:#12318f;}
+.statut-pastille.sale{background:#fff4e0;color:#b45309;}
+.statut-pastille.maintenance{background:var(--alerte-bg);color:var(--alerte-txt);}
+
+/* ---------- ALERTES / STATS ---------- */
+.bandeau-alerte{
+  background:var(--alerte-bg); color:var(--alerte-txt);
+  padding:14px 18px; border-radius:12px; font-size:14px; font-weight:700;
+  margin-bottom:18px; display:flex; align-items:center; gap:10px;
+}
+.ok-alerte{
+  background:#e7f6ec; color:#166534; padding:30px; text-align:center;
+  border-radius:12px; font-size:14px;
+}
+.cartes-stats{display:flex; gap:16px; margin-bottom:22px; flex-wrap:wrap;}
+.carte-stat{
+  background:#fff; border:1px solid var(--ligne); border-radius:var(--radius);
+  padding:18px 22px; flex:1; min-width:180px;
+  box-shadow:0 2px 10px rgba(18,49,143,0.06);
+  border-top:3px solid var(--ink-light);
+}
+.carte-stat .valeur{font-family:'Courier New',monospace; font-size:24px; font-weight:700; color:var(--ink);}
+.carte-stat .libelle{font-size:12px; color:var(--texte-clair); text-transform:uppercase; letter-spacing:0.03em; margin-top:4px;}
+
+/* ---------- MODALES ---------- */
+.fond-modale{
+  display:none; position:fixed; inset:0; background:rgba(10,26,63,0.55);
+  align-items:center; justify-content:center; z-index:100; padding:20px; overflow-y:auto;
+}
+.fond-modale.active{display:flex;}
+.modale{
+  background:var(--paper); border-radius:22px; padding:30px;
+  width:100%; max-width:460px; max-height:88vh; overflow-y:auto;
+  box-shadow:0 25px 60px rgba(4,12,35,0.4);
+}
+.modale h3{color:var(--ink); margin:0 0 20px 0; font-size:18px;}
+.modale .champ input, .modale .champ select, .modale .champ textarea{background:#fff;}
+.actions-modale{display:flex; gap:10px; margin-top:24px;}
+.actions-modale .btn{flex:1;}
+.ligne-2{display:flex; gap:12px;}
+.ligne-2 .champ{flex:1;}
+.encart{background:var(--kraft); border-radius:10px; padding:12px 14px; font-size:13.5px; color:var(--ink); font-weight:600; margin:-6px 0 14px 0;}
+
+@media (max-width: 820px){
+  .contenu{padding:16px;}
+  .ligne-2{flex-direction:column; gap:0;}
+}
+/* ---------- Impression ---------- */
+.bouton-imprimer{
+  background:linear-gradient(135deg, #22c55e, var(--sauge)); color:#fff; border:none; border-radius:10px;
+  padding:9px 16px; font-size:13px; font-weight:700; cursor:pointer;
+  box-shadow:0 4px 12px rgba(22,163,74,0.35);
+}
+.bouton-imprimer:hover{filter:brightness(1.07);}
+.entete-impression{ display:none; }
+@media print{
+  #ecran-connexion, .barre-haut, .onglets, .barre-outils, .fond-modale, button, .bouton-imprimer{
+    display:none !important;
+  }
+  #app{ display:block !important; }
+  .vue{ display:none !important; }
+  .vue.impression-active{ display:block !important; }
+  .contenu{ padding:0; }
+  body{ background:#fff; }
+  .entete-impression{
+    display:block; margin-bottom:16px; border-bottom:2px solid #000; padding-bottom:10px;
+  }
+  .entete-impression h2{ margin:0 0 4px 0; }
+  .entete-impression p{ margin:0; font-size:12px; color:#555; }
+  table{ box-shadow:none !important; }
+  .carte-stat{ box-shadow:none !important; border:1px solid #999 !important; }
+}
+/* ---------- PLANNING (CALENDRIER CHAMBRES x JOURS) ---------- */
+.planning-barre{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; gap:10px; flex-wrap:wrap;}
+.planning-scroll{overflow-x:auto; border:1px solid var(--ligne); border-radius:14px;}
+.grille-planning{display:grid; min-width:max-content;}
+.planning-case-entete{
+  position:sticky; top:0; background:var(--paper); border-right:1px solid var(--ligne); border-bottom:1.5px solid var(--ligne);
+  padding:8px 4px; text-align:center; font-size:11.5px; color:var(--texte-clair); z-index:2; min-width:54px;
+}
+.planning-case-entete.weekend{background:var(--kraft);}
+.planning-case-entete.aujourdhui{background:#fff3e0; color:var(--pencil-dark,#cf7d00); font-weight:700;}
+.planning-coin{
+  position:sticky; left:0; top:0; background:var(--kraft); z-index:3; border-right:1.5px solid var(--ligne); border-bottom:1.5px solid var(--ligne);
+  padding:8px 12px; font-size:12px; font-weight:700; color:var(--ink); min-width:130px;
+}
+.planning-case-chambre{
+  position:sticky; left:0; background:var(--kraft); border-right:1.5px solid var(--ligne); border-bottom:1px solid var(--ligne);
+  padding:9px 12px; font-size:13px; font-weight:600; z-index:1; min-width:130px; display:flex; align-items:center;
+}
+.planning-cellule{
+  border-right:1px solid var(--ligne); border-bottom:1px solid var(--ligne); min-height:42px; min-width:54px; position:relative; background:var(--paper); cursor:pointer;
+}
+.planning-cellule:hover{background:var(--kraft);}
+.planning-cellule.weekend{background:#f7f9fe;}
+.resa-barre{
+  position:absolute; top:4px; bottom:4px; left:1px; right:-1px; border-radius:6px; font-size:10.5px;
+  color:#fff; display:flex; align-items:center; padding:0 5px; overflow:hidden; white-space:nowrap;
+  cursor:pointer; font-weight:600; z-index:1;
+}
+.resa-barre.statut-reservee{background:linear-gradient(135deg, var(--ink-light), var(--ink));}
+.resa-barre.statut-en_cours{background:linear-gradient(135deg, #22c55e, #0d7c3a);}
+.resa-barre.statut-terminee{background:linear-gradient(135deg, #94a3b8, #64748b);}
+.resa-barre.statut-annulee{background:repeating-linear-gradient(45deg,#cbd5e1,#cbd5e1 6px,#e2e8f0 6px,#e2e8f0 12px); color:#64748b;}
+.planning-legende{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:14px; font-size:12px; color:var(--texte-clair);}
+.planning-legende-item{display:flex; align-items:center; gap:6px;}
+.planning-pastille{width:11px; height:11px; border-radius:4px; display:inline-block;}
+</style>
+</head>
+<body>
+
+<!-- ============ BOUTON D'INSTALLATION PWA ============ -->
+<button id="btn-installer-pwa" onclick="installerPWA()" style="display:none;position:fixed;bottom:20px;right:20px;z-index:9999;align-items:center;gap:8px;background:linear-gradient(135deg, var(--or), var(--or-dark));color:#1a2233;border:none;border-radius:50px;padding:12px 20px;font-size:14px;font-weight:700;box-shadow:0 6px 18px rgba(242,162,12,0.45);cursor:pointer;">
+  ⬇️ Installer l'application
+</button>
+
+<!-- ============ ECRAN D'ACTIVATION (LICENCE) ============ -->
+<div id="ecran-activation" style="display:none;">
+  <div class="carte-connexion-enveloppe">
+  <div class="carte-connexion">
+    <p class="brand" style="text-align:center;" id="titre-activation">🔒 Activation d'EasyHotel</p>
+    <p class="brand-sub" style="text-align:center;" id="sous-titre-activation">Ce logiciel nécessite une clé de licence</p>
+    <div class="champ">
+      <label>Votre nom</label>
+      <input type="text" id="input-nom-activation" placeholder="Nom de l'établissement / du responsable" autocomplete="off">
+    </div>
+    <div class="champ">
+      <label>Clé de licence</label>
+      <input type="text" id="input-cle-licence" placeholder="XXXX-XXXX-XXXX-XXXX-XXXX" autocomplete="off">
+    </div>
+    <button class="btn btn-primaire" onclick="activerLicence()">Activer</button>
+    <div class="erreur-connexion" id="erreur-activation"></div>
+    <p class="aide-compte">Clé fournie par KINVOS lors de l'achat ou du renouvellement du logiciel.</p>
+  </div>
+  </div>
+  <p style="text-align:center;color:rgba(255,255,255,0.75);font-size:11.5px;margin-top:20px;letter-spacing:0.04em;">Par <b style="color:#fff;">KINVOS</b></p>
+</div>
+
+<!-- ============ ECRAN DE CONNEXION ============ -->
+<div id="ecran-connexion" style="display:none;">
+  <div class="carte-connexion-enveloppe">
+  <div class="carte-connexion">
+    <img src="data:image/png;base64,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" alt="EasyHotel" style="display:block;width:96px;height:96px;margin:0 auto 14px auto;">
+    <p class="brand" style="text-align:center;" id="nom-hotel-connexion">Mon Hôtel</p>
+    <p class="brand-sub" style="text-align:center;">Gérez votre hôtel, simplifiez votre quotidien</p>
+    <div class="champ">
+      <label>Nom d'utilisateur</label>
+      <input type="text" id="input-user" autocomplete="username">
+    </div>
+    <div class="champ">
+      <label>Mot de passe</label>
+      <input type="password" id="input-pass" autocomplete="current-password">
+    </div>
+    <button class="btn btn-primaire" onclick="connexion()">Se connecter</button>
+    <div class="erreur-connexion" id="erreur-connexion"></div>
+    <p class="aide-compte">Compte par défaut : <b>admin</b> / <b>admin123</b></p>
+  </div>
+  </div>
+  <p style="text-align:center;color:rgba(255,255,255,0.75);font-size:11.5px;margin-top:20px;letter-spacing:0.04em;">Par <b style="color:#fff;">KINVOS</b></p>
+</div>
+
+<!-- ============ APPLICATION ============ -->
+<div id="app">
+  <div class="barre-haut">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <img src="data:image/png;base64,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" alt="EasyHotel" style="width:36px;height:36px;border-radius:8px;background:#fff;">
+      <div>
+        <p class="brand" style="font-size:16px;line-height:1.1;">Easy<span>Hotel</span></p>
+        <p style="margin:0;font-size:11px;color:#d8c9a3;line-height:1.1;" id="nom-hotel-barre"></p>
+      </div>
+    </div>
+    <div class="info-utilisateur">
+      <span id="nom-utilisateur-connecte"></span>
+      <span class="pastille-role" id="role-utilisateur-connecte"></span>
+      <span id="zone-sauvegarde" style="display:none;">
+        <button class="btn btn-discret" style="padding:6px 12px;font-size:12.5px;" onclick="exporterSauvegarde()">💾 Sauvegarder</button>
+        <button class="btn btn-discret" style="padding:6px 12px;font-size:12.5px;" onclick="document.getElementById('input-restauration').click()">📂 Restaurer</button>
+        <input type="file" id="input-restauration" accept="application/json" style="display:none;" onchange="importerSauvegarde(event)">
+      </span>
+      <a href="#" class="lien-deconnexion" onclick="deconnexion();return false;">Se déconnecter</a>
+    </div>
+  </div>
+
+  <div id="banniere-licence" style="display:none;background:var(--alerte-bg);color:var(--alerte-txt);padding:9px 26px;font-size:13px;font-weight:600;text-align:center;"></div>
+
+  <div class="onglets" id="barre-onglets"></div>
+
+  <div class="contenu">
+
+    <!-- VUE RECEPTION -->
+    <div class="vue" id="vue-reception">
+      <div class="entete-vue">
+        <h2>🛎 Réception</h2>
+        <div class="barre-actions">
+          <button class="btn btn-discret" onclick="rafraichirReception()">🔄 Actualiser</button>
+        </div>
+      </div>
+      <div class="legende-statuts">
+        <span><span class="puce libre"></span> Libre</span>
+        <span><span class="puce occupee"></span> Occupée</span>
+        <span><span class="puce sale"></span> À nettoyer</span>
+        <span><span class="puce maintenance"></span> Maintenance</span>
+      </div>
+      <div class="cartes-stats" id="cartes-stats-reception"></div>
+      <div class="grille-chambres" id="grille-chambres-reception"></div>
+    </div>
+
+    <!-- VUE PLANNING -->
+    <div class="vue" id="vue-planning">
+      <div class="entete-vue">
+        <h2>🗓 Planning</h2>
+        <div class="barre-actions">
+          <button class="btn btn-accent" onclick="ouvrirModaleReservation()">+ Nouvelle réservation</button>
+        </div>
+      </div>
+      <div class="planning-legende">
+        <span class="planning-legende-item"><span class="planning-pastille" style="background:linear-gradient(135deg,var(--ink-light),var(--ink));"></span> Réservée</span>
+        <span class="planning-legende-item"><span class="planning-pastille" style="background:linear-gradient(135deg,#22c55e,#0d7c3a);"></span> En cours (occupée)</span>
+        <span class="planning-legende-item"><span class="planning-pastille" style="background:linear-gradient(135deg,#94a3b8,#64748b);"></span> Terminée</span>
+        <span class="planning-legende-item"><span class="planning-pastille" style="background:repeating-linear-gradient(45deg,#cbd5e1,#cbd5e1 4px,#e2e8f0 4px,#e2e8f0 8px);"></span> Annulée</span>
+      </div>
+      <div class="planning-barre">
+        <div class="barre-actions">
+          <button class="btn btn-discret" onclick="deplacerPlanning(-7)">◀ Semaine préc.</button>
+          <button class="btn btn-discret" onclick="allerAujourdhuiPlanning()">Aujourd'hui</button>
+          <button class="btn btn-discret" onclick="deplacerPlanning(7)">Semaine suiv. ▶</button>
+        </div>
+        <span id="planning-periode-label" style="font-size:13px;color:var(--texte-clair);font-weight:600;"></span>
+      </div>
+      <div class="planning-scroll">
+        <div class="grille-planning" id="grille-planning"></div>
+      </div>
+    </div>
+
+    <!-- VUE RESERVATIONS -->
+    <div class="vue" id="vue-reservations">
+      <div class="entete-impression"><h2>Réservations</h2><p class="entete-hotel-info"></p><p></p></div>
+      <div class="entete-vue">
+        <h2>📅 Réservations</h2>
+        <div class="barre-actions">
+          <select id="filtre-statut-reservation" onchange="rafraichirReservations()" style="padding:9px 12px;border:1.5px solid var(--ligne);border-radius:6px;">
+            <option value="">Toutes</option>
+            <option value="reservee">Réservée</option>
+            <option value="en_cours">En cours (occupée)</option>
+            <option value="terminee">Terminée</option>
+            <option value="annulee">Annulée</option>
+          </select>
+          <button class="btn btn-accent" onclick="ouvrirModaleReservation()">+ Nouvelle réservation</button>
+          <button class="bouton-imprimer" onclick="imprimerVue('vue-reservations','Liste des réservations')">🖨 Imprimer</button>
+        </div>
+      </div>
+      <table>
+        <thead><tr><th>Client</th><th>Chambre</th><th>Arrivée</th><th>Départ</th><th>Nuits</th><th>Total</th><th>Statut</th><th>Actions</th></tr></thead>
+        <tbody id="corps-reservations"></tbody>
+      </table>
+    </div>
+
+    <!-- VUE CHAMBRES -->
+    <div class="vue" id="vue-chambres">
+      <div class="entete-vue">
+        <h2>🚪 Chambres & Types</h2>
+        <div class="barre-actions">
+          <button class="btn btn-accent" onclick="ouvrirModaleTypeChambre()">+ Nouveau type</button>
+          <button class="btn btn-accent" onclick="ouvrirModaleChambre()">+ Nouvelle chambre</button>
+        </div>
+      </div>
+      <h3 style="color:var(--ink);font-size:15px;">Types de chambres</h3>
+      <table style="margin-bottom:26px;">
+        <thead><tr><th>Nom</th><th>Prix / nuit</th><th>Actions</th></tr></thead>
+        <tbody id="corps-types-chambres"></tbody>
+      </table>
+      <h3 style="color:var(--ink);font-size:15px;">Chambres</h3>
+      <table>
+        <thead><tr><th>Numéro</th><th>Type</th><th>Étage</th><th>Statut</th><th>Actions</th></tr></thead>
+        <tbody id="corps-chambres"></tbody>
+      </table>
+    </div>
+
+    <!-- VUE MENAGE -->
+    <div class="vue" id="vue-menage">
+      <div class="entete-vue">
+        <h2>🧹 Ménage</h2>
+        <div class="barre-actions">
+          <button class="btn btn-discret" onclick="rafraichirMenage()">🔄 Actualiser</button>
+        </div>
+      </div>
+      <h3 style="color:var(--ink);font-size:15px;">Chambres à nettoyer</h3>
+      <div id="zone-menage-sale"></div>
+      <h3 style="color:var(--ink);font-size:15px;margin-top:26px;">Chambres en maintenance</h3>
+      <div id="zone-menage-maintenance"></div>
+    </div>
+
+    <!-- VUE FACTURATION -->
+    <div class="vue" id="vue-facturation">
+      <div class="entete-impression"><h2>Facturation</h2><p class="entete-hotel-info"></p><p></p></div>
+      <div class="entete-vue">
+        <h2>💰 Facturation</h2>
+        <div class="barre-actions">
+          <button class="bouton-imprimer" onclick="imprimerVue('vue-facturation','Facturation')">🖨 Imprimer</button>
+        </div>
+      </div>
+      <table>
+        <thead><tr><th>Client</th><th>Chambre</th><th>Arrivée</th><th>Départ</th><th>Total</th><th>Payé</th><th>Solde</th><th>Statut</th><th>Actions</th></tr></thead>
+        <tbody id="corps-facturation"></tbody>
+      </table>
+    </div>
+
+    <!-- VUE RAPPORTS -->
+    <div class="vue" id="vue-rapports">
+      <div class="entete-impression"><h2 id="titre-impression-rapport">Rapport d'activité</h2><p class="entete-hotel-info"></p><p id="sous-titre-impression-rapport"></p></div>
+      <div class="entete-vue">
+        <h2>📊 Rapports</h2>
+        <div class="barre-actions">
+          <button class="bouton-imprimer" onclick="imprimerVue('vue-rapports','Rapport d\'activité')">🖨 Imprimer</button>
+        </div>
+      </div>
+      <div class="barre-actions" style="margin-bottom:18px;background:#fff;border:1px solid var(--ligne);border-radius:8px;padding:14px;">
+        <button class="btn btn-discret" onclick="definirPeriodeRapide(0)">Aujourd'hui</button>
+        <button class="btn btn-discret" onclick="definirPeriodeRapide(7)">7 derniers jours</button>
+        <button class="btn btn-discret" onclick="definirPeriodeRapide(30)">30 derniers jours</button>
+        <span style="width:1px;background:var(--ligne);align-self:stretch;"></span>
+        <label style="font-size:12.5px;color:var(--texte-clair);">Du <input type="date" id="rapport-date-debut" style="padding:7px 9px;border:1.5px solid var(--ligne);border-radius:6px;"></label>
+        <label style="font-size:12.5px;color:var(--texte-clair);">Au <input type="date" id="rapport-date-fin" style="padding:7px 9px;border:1.5px solid var(--ligne);border-radius:6px;"></label>
+        <button class="btn btn-accent" onclick="afficherRapportPeriode()">Afficher</button>
+      </div>
+      <div class="cartes-stats" id="cartes-stats-rapport"></div>
+      <h3 style="color:var(--ink);font-size:15px;">Réservations créées sur la période</h3>
+      <table>
+        <thead><tr><th>Client</th><th>Chambre</th><th>Arrivée</th><th>Départ</th><th>Total</th></tr></thead>
+        <tbody id="corps-rapport-reservations"></tbody>
+      </table>
+    </div>
+
+    <!-- VUE UTILISATEURS -->
+    <div class="vue" id="vue-utilisateurs">
+      <div class="entete-vue">
+        <h2>👤 Utilisateurs</h2>
+        <div class="barre-actions">
+          <button class="btn btn-accent" onclick="ouvrirModaleUtilisateur()">+ Nouvel utilisateur</button>
+        </div>
+      </div>
+      <table>
+        <thead><tr><th>Identifiant</th><th>Nom complet</th><th>Rôle</th><th>Actif</th><th>Actions</th></tr></thead>
+        <tbody id="corps-utilisateurs"></tbody>
+      </table>
+    </div>
+
+    <!-- VUE PARAMETRES -->
+    <div class="vue" id="vue-parametres">
+      <div class="entete-vue"><h2>⚙️ Paramètres</h2></div>
+      <div style="background:#fff;border:1px solid var(--ligne);border-radius:var(--radius);padding:24px;max-width:460px;">
+        <div class="champ">
+          <label>Nom de l'hôtel</label>
+          <input type="text" id="param-nom-hotel" placeholder="Ex : Hôtel Les Palmiers">
+        </div>
+        <div class="champ">
+          <label>IFU</label>
+          <input type="text" id="param-ifu" placeholder="Numéro IFU">
+        </div>
+        <div class="champ">
+          <label>Contact</label>
+          <input type="text" id="param-contact" placeholder="Téléphone / WhatsApp">
+        </div>
+        <div class="champ">
+          <label>Adresse</label>
+          <input type="text" id="param-adresse" placeholder="Quartier, ville">
+        </div>
+        <p style="font-size:12px;color:var(--texte-clair);margin-top:-8px;">Ces informations apparaissent sur l'écran de connexion, la barre du haut, les factures et les rapports imprimés. Le logiciel reste « EasyHotel ».</p>
+        <button class="btn btn-accent" onclick="enregistrerParametres()">Enregistrer</button>
+      </div>
+
+      <div style="background:#fff;border:1px solid var(--ligne);border-radius:var(--radius);padding:24px;max-width:460px;margin-top:20px;">
+        <h3 style="margin:0 0 14px 0;color:var(--ink);font-family:Georgia,serif;">🔒 Licence</h3>
+        <div class="champ">
+          <label>Code appareil (à transmettre à KINVOS)</label>
+          <div style="display:flex;gap:8px;">
+            <input type="text" id="code-appareil-parametres" readonly style="font-family:monospace;letter-spacing:0.04em;font-weight:700;">
+            <button type="button" class="btn btn-discret" style="white-space:nowrap;" onclick="copierTexte('code-appareil-parametres')">Copier</button>
+          </div>
+        </div>
+        <p id="statut-licence-parametres" style="font-size:13.5px;color:var(--texte-clair);margin:6px 0 18px 0;"></p>
+        <div class="champ">
+          <label>Nouveau code d'activation (pour renouveler)</label>
+          <input type="text" id="param-nouveau-code-licence" placeholder="XXXX-XXXX-XXXX-XXXX-XXXX">
+        </div>
+        <button class="btn btn-accent" onclick="renouvelerLicenceDepuisParametres()">Mettre à jour la licence</button>
+        <div class="erreur-connexion" id="erreur-renouvellement-licence"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============ MODALE DETAIL CHAMBRE (RECEPTION) ============ -->
+<div class="fond-modale" id="modale-detail-chambre">
+  <div class="modale">
+    <h3 id="titre-modale-detail-chambre">Chambre</h3>
+    <div id="corps-detail-chambre"></div>
+    <div class="actions-modale">
+      <button class="btn btn-discret" onclick="fermerModale('modale-detail-chambre')">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODALE RESERVATION ============ -->
+<div class="fond-modale" id="modale-reservation">
+  <div class="modale">
+    <h3 id="titre-modale-reservation">Nouvelle réservation</h3>
+    <input type="hidden" id="reservation-id">
+    <div class="champ"><label>Nom du client *</label><input type="text" id="reservation-client-nom"></div>
+    <div class="champ"><label>Téléphone</label><input type="text" id="reservation-client-telephone"></div>
+    <div class="ligne-2">
+      <div class="champ"><label>Date d'arrivée *</label><input type="date" id="reservation-arrivee" onchange="remplirSelecteurChambresReservation()"></div>
+      <div class="champ"><label>Date de départ *</label><input type="date" id="reservation-depart" onchange="remplirSelecteurChambresReservation()"></div>
+    </div>
+    <div class="champ"><label>Chambre *</label><select id="reservation-chambre" onchange="calculerMontantReservation()"></select></div>
+    <div class="ligne-2">
+      <div class="champ"><label>Nombre de personnes</label><input type="number" id="reservation-personnes" value="1" min="1"></div>
+      <div class="champ"><label>Prix / nuit (FCFA) *</label><input type="number" id="reservation-prix-nuit" oninput="calculerMontantReservation()"></div>
+    </div>
+    <p class="encart" id="apercu-montant-reservation">Total : 0 FCFA</p>
+    <div class="champ" id="champ-acompte-reservation"><label>Acompte versé (optionnel)</label><input type="number" id="reservation-acompte" placeholder="0"></div>
+    <div class="champ"><label>Notes</label><textarea id="reservation-notes" rows="2"></textarea></div>
+    <div class="actions-modale">
+      <button class="btn btn-discret" onclick="fermerModale('modale-reservation')">Annuler</button>
+      <button class="btn btn-accent" onclick="enregistrerReservation()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODALE TYPE DE CHAMBRE ============ -->
+<div class="fond-modale" id="modale-type-chambre">
+  <div class="modale">
+    <h3 id="titre-modale-type-chambre">Nouveau type de chambre</h3>
+    <input type="hidden" id="type-chambre-id">
+    <div class="champ"><label>Nom *</label><input type="text" id="type-chambre-nom" placeholder="Ex : Simple, Double, Suite"></div>
+    <div class="champ"><label>Prix / nuit (FCFA) *</label><input type="number" id="type-chambre-prix"></div>
+    <div class="actions-modale">
+      <button class="btn btn-discret" onclick="fermerModale('modale-type-chambre')">Annuler</button>
+      <button class="btn btn-accent" onclick="enregistrerTypeChambre()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODALE CHAMBRE ============ -->
+<div class="fond-modale" id="modale-chambre">
+  <div class="modale">
+    <h3 id="titre-modale-chambre">Nouvelle chambre</h3>
+    <input type="hidden" id="chambre-id">
+    <div class="champ"><label>Numéro *</label><input type="text" id="chambre-numero" placeholder="Ex : 101"></div>
+    <div class="champ"><label>Type *</label><select id="chambre-type"></select></div>
+    <div class="champ"><label>Étage</label><input type="text" id="chambre-etage"></div>
+    <div class="champ"><label>Notes</label><textarea id="chambre-notes" rows="2"></textarea></div>
+    <div class="actions-modale">
+      <button class="btn btn-discret" onclick="fermerModale('modale-chambre')">Annuler</button>
+      <button class="btn btn-accent" onclick="enregistrerChambre()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODALE PAIEMENT ============ -->
+<div class="fond-modale" id="modale-paiement">
+  <div class="modale">
+    <h3>Enregistrer un paiement</h3>
+    <input type="hidden" id="paiement-reservation-id">
+    <p class="encart" id="apercu-solde-paiement"></p>
+    <div class="champ"><label>Montant (FCFA) *</label><input type="number" id="paiement-montant"></div>
+    <div class="champ"><label>Mode de paiement</label>
+      <select id="paiement-mode"><option value="especes">Espèces</option><option value="carte">Carte</option><option value="mobile">Mobile Money</option></select>
+    </div>
+    <div class="actions-modale">
+      <button class="btn btn-discret" onclick="fermerModale('modale-paiement')">Annuler</button>
+      <button class="btn btn-accent" onclick="enregistrerPaiement()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODALE UTILISATEUR ============ -->
+<div class="fond-modale" id="modale-utilisateur">
+  <div class="modale">
+    <h3 id="titre-modale-utilisateur">Nouvel utilisateur</h3>
+    <input type="hidden" id="util-id">
+    <div class="champ"><label>Nom d'utilisateur *</label><input type="text" id="util-nom-utilisateur"></div>
+    <div class="champ"><label>Nom complet</label><input type="text" id="util-nom-complet"></div>
+    <div class="champ"><label>Mot de passe *</label><input type="password" id="util-mdp"></div>
+    <div class="champ"><label>Rôle</label>
+      <select id="util-role"><option value="reception">Réceptionniste</option><option value="admin">Administrateur</option></select>
+    </div>
+    <div class="actions-modale">
+      <button class="btn btn-discret" onclick="fermerModale('modale-utilisateur')">Annuler</button>
+      <button class="btn btn-accent" id="bouton-enregistrer-utilisateur" onclick="enregistrerUtilisateur()">Créer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   BASE DE DONNEES LOCALE (localStorage)
+   ========================================================= */
+const CLE_STOCKAGE = "easyhotel_db_v1";
+
+function hashSimple(texte){
+  let h = 0;
+  for(let i=0;i<texte.length;i++){
+    h = (Math.imul(31,h) + texte.charCodeAt(i))|0;
+  }
+  return "h" + h.toString(16) + "_" + texte.length;
+}
+
+function dateISO(d){
+  // Retourne YYYY-MM-DD pour un objet Date (heure locale)
+  const p = n => String(n).padStart(2,"0");
+  return d.getFullYear() + "-" + p(d.getMonth()+1) + "-" + p(d.getDate());
+}
+function aujourdhuiISO(){ return dateISO(new Date()); }
+function nuitsEntre(arrivee, depart){
+  const a = new Date(arrivee+"T00:00:00");
+  const d = new Date(depart+"T00:00:00");
+  const n = Math.round((d-a)/86400000);
+  return n > 0 ? n : 0;
+}
+function formaterDate(iso){
+  if(!iso) return "";
+  const d = new Date(iso+"T00:00:00");
+  return d.toLocaleDateString("fr-FR");
+}
+function formaterMontant(n){
+  return (Number(n)||0).toLocaleString("fr-FR") + " FCFA";
+}
+
+/* =========================================================
+   PLANNING (VUE CALENDRIER : CHAMBRES EN LIGNES, JOURS EN COLONNES)
+   ========================================================= */
+const NB_JOURS_PLANNING = 14;
+let planningDateDebut = new Date();
+planningDateDebut.setHours(0,0,0,0);
+
+function deplacerPlanning(delta){
+  planningDateDebut.setDate(planningDateDebut.getDate() + delta);
+  rafraichirPlanning();
+}
+function allerAujourdhuiPlanning(){
+  planningDateDebut = new Date();
+  planningDateDebut.setHours(0,0,0,0);
+  rafraichirPlanning();
+}
+function diffJours(dateA, dateB){
+  // Nombre de jours entre deux objets Date (dateB - dateA), heure remise à zéro
+  const a = new Date(dateA); a.setHours(0,0,0,0);
+  const b = new Date(dateB); b.setHours(0,0,0,0);
+  return Math.round((b-a)/86400000);
+}
+function rafraichirPlanning(){
+  const zone = document.getElementById("grille-planning");
+  const label = document.getElementById("planning-periode-label");
+  const jours = [];
+  for(let i=0;i<NB_JOURS_PLANNING;i++){
+    const d = new Date(planningDateDebut);
+    d.setDate(d.getDate()+i);
+    jours.push(d);
+  }
+  const dernierJour = jours[jours.length-1];
+  label.textContent = jours[0].toLocaleDateString("fr-FR",{day:"2-digit",month:"short"}) + " → " + dernierJour.toLocaleDateString("fr-FR",{day:"2-digit",month:"short",year:"numeric"});
+
+  const chambres = DB.chambres.slice().sort((a,b)=> a.numero.localeCompare(b.numero, undefined, {numeric:true}));
+
+  zone.style.gridTemplateColumns = "130px repeat(" + NB_JOURS_PLANNING + ", 54px)";
+  zone.style.gridTemplateRows = "40px repeat(" + chambres.length + ", 42px)";
+
+  let html = "";
+  // Coin supérieur gauche
+  html += `<div class="planning-coin" style="grid-column:1;grid-row:1;">Chambres</div>`;
+  // Entêtes de jours
+  jours.forEach((d,j)=>{
+    const estWeekend = d.getDay()===0 || d.getDay()===6;
+    const estAujourdhui = dateISO(d) === aujourdhuiISO();
+    html += `<div class="planning-case-entete${estWeekend?' weekend':''}${estAujourdhui?' aujourdhui':''}" style="grid-column:${j+2};grid-row:1;">
+      ${d.toLocaleDateString("fr-FR",{weekday:"short"})}<br>${d.getDate()}/${d.getMonth()+1}
+    </div>`;
+  });
+  // Lignes chambres + cellules cliquables
+  chambres.forEach((c,i)=>{
+    html += `<div class="planning-case-chambre" style="grid-column:1;grid-row:${i+2};">${escapeHtml(c.numero)} <span style="color:var(--texte-clair);font-weight:400;font-size:11px;margin-left:6px;">${escapeHtml(nomTypeChambre(c.type_id))}</span></div>`;
+    jours.forEach((d,j)=>{
+      const estWeekend = d.getDay()===0 || d.getDay()===6;
+      html += `<div class="planning-cellule${estWeekend?' weekend':''}" style="grid-column:${j+2};grid-row:${i+2};" onclick="ouvrirModaleReservation(null, ${c.id}, '${dateISO(d)}')"></div>`;
+    });
+  });
+  // Barres de réservation (rendues après les cellules pour s'afficher par-dessus)
+  const indexChambre = {};
+  chambres.forEach((c,i)=>{ indexChambre[c.id] = i; });
+  DB.reservations.forEach(r=>{
+    const ligneIdx = indexChambre[r.chambre_id];
+    if(ligneIdx === undefined) return;
+    const debutIdx = diffJours(planningDateDebut, new Date(r.date_arrivee+"T00:00:00"));
+    const finIdx = diffJours(planningDateDebut, new Date(r.date_depart+"T00:00:00"));
+    const colDebut = Math.max(0, debutIdx);
+    const colFin = Math.min(NB_JOURS_PLANNING, finIdx);
+    if(colFin <= colDebut || colDebut >= NB_JOURS_PLANNING || colFin <= 0) return;
+    html += `<div class="resa-barre statut-${r.statut}" style="grid-column:${colDebut+2} / ${colFin+2};grid-row:${ligneIdx+2};" onclick="event.stopPropagation();ouvrirModaleReservation(${r.id})" title="${escapeHtml(r.client_nom)} — ${libelleStatutReservation(r.statut)}">${escapeHtml(r.client_nom)}</div>`;
+  });
+
+  zone.innerHTML = html || `<div style="padding:20px;color:var(--texte-clair);grid-column:1/-1;">Aucune chambre créée. Ajoutez des chambres dans l'onglet « Chambres ».</div>`;
+}
+
+function baseParDefaut(){
+  const maintenant = new Date().toISOString();
+  return {
+    parametres: { nom_hotel: "Mon Hôtel", ifu: "", contact: "", adresse: "" },
+    licence: { activee:false },
+    utilisateurs: [
+      {id:1, nom_utilisateur:"admin", mdp_hash:hashSimple("admin123"), role:"admin", nom_complet:"Administrateur", actif:true, date_creation:maintenant},
+      {id:2, nom_utilisateur:"reception1", mdp_hash:hashSimple("reception123"), role:"reception", nom_complet:"Réceptionniste", actif:true, date_creation:maintenant}
+    ],
+    types_chambres: [
+      {id:1,nom:"Simple",prix_nuit:15000},
+      {id:2,nom:"Double",prix_nuit:22000},
+      {id:3,nom:"Suite",prix_nuit:40000}
+    ],
+    chambres: [],
+    reservations: [],
+    paiements: [],
+    compteurs: {utilisateur:3, type_chambre:4, chambre:1, reservation:1, paiement:1}
+  };
+}
+
+let DB = null;
+
+function migrerDB(){
+  if(!DB.parametres) DB.parametres = { nom_hotel: "Mon Hôtel", ifu: "", contact: "", adresse: "" };
+  if(DB.parametres.ifu===undefined) DB.parametres.ifu = "";
+  if(DB.parametres.contact===undefined) DB.parametres.contact = "";
+  if(DB.parametres.adresse===undefined) DB.parametres.adresse = "";
+  if(!DB.types_chambres) DB.types_chambres = [];
+  if(!DB.chambres) DB.chambres = [];
+  if(!DB.reservations) DB.reservations = [];
+  if(!DB.paiements) DB.paiements = [];
+  if(!DB.compteurs) DB.compteurs = {};
+  ["utilisateur","type_chambre","chambre","reservation","paiement"].forEach(c=>{
+    if(!DB.compteurs[c]) DB.compteurs[c] = 1;
+  });
+}
+
+function chargerDB(){
+  const brut = localStorage.getItem(CLE_STOCKAGE);
+  if(brut){
+    try{ DB = JSON.parse(brut); migrerDB(); afficherNomHotelConnexion(); return; }catch(e){ /* corrompu, on recrée */ }
+  }
+  DB = baseParDefaut();
+  sauvegarderDB();
+  afficherNomHotelConnexion();
+}
+
+function afficherNomHotelConnexion(){
+  const el = document.getElementById("nom-hotel-connexion");
+  if(el) el.textContent = DB.parametres.nom_hotel || "Mon Hôtel";
+}
+
+function sauvegarderDB(){
+  localStorage.setItem(CLE_STOCKAGE, JSON.stringify(DB));
+}
+
+function prochainId(cle){
+  const id = DB.compteurs[cle];
+  DB.compteurs[cle] = id + 1;
+  return id;
+}
+
+/* =========================================================
+   ETAT DE SESSION
+   ========================================================= */
+let utilisateurConnecte = null;
+
+/* =========================================================
+   CONNEXION
+   ========================================================= */
+function connexion(){
+  const nom = document.getElementById("input-user").value.trim();
+  const mdp = document.getElementById("input-pass").value;
+  const user = DB.utilisateurs.find(u => u.nom_utilisateur === nom && u.actif && u.mdp_hash === hashSimple(mdp));
+  if(user){
+    utilisateurConnecte = user;
+    document.getElementById("ecran-connexion").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    document.getElementById("nom-utilisateur-connecte").textContent = user.nom_complet;
+    document.getElementById("role-utilisateur-connecte").textContent = user.role === "admin" ? "admin" : "réception";
+    document.getElementById("nom-hotel-barre").textContent = DB.parametres.nom_hotel || "";
+    construireOnglets();
+    rafraichirTout();
+  } else {
+    document.getElementById("erreur-connexion").textContent = "Nom d'utilisateur ou mot de passe incorrect.";
+  }
+}
+
+function deconnexion(){
+  utilisateurConnecte = null;
+  document.getElementById("input-pass").value = "";
+  document.getElementById("erreur-connexion").textContent = "";
+  document.getElementById("app").style.display = "none";
+  document.getElementById("ecran-connexion").style.display = "flex";
+}
+
+document.getElementById("input-pass").addEventListener("keydown", e => { if(e.key==="Enter") connexion(); });
+
+/* =========================================================
+   ONGLETS
+   ========================================================= */
+function construireOnglets(){
+  const barre = document.getElementById("barre-onglets");
+  const estAdmin = utilisateurConnecte.role === "admin";
+  document.getElementById("zone-sauvegarde").style.display = estAdmin ? "inline-flex" : "none";
+  const onglets = [
+    {id:"reception", label:"🛎 Réception", visible:true},
+    {id:"planning", label:"🗓 Planning", visible:true},
+    {id:"reservations", label:"📅 Réservations", visible:true},
+    {id:"menage", label:"🧹 Ménage", visible:true},
+    {id:"facturation", label:"💰 Facturation", visible:true},
+    {id:"chambres", label:"🚪 Chambres", visible:estAdmin},
+    {id:"rapports", label:"📊 Rapports", visible:estAdmin},
+    {id:"utilisateurs", label:"👤 Utilisateurs", visible:estAdmin},
+    {id:"parametres", label:"⚙️ Paramètres", visible:estAdmin}
+  ];
+  barre.innerHTML = "";
+  onglets.filter(o=>o.visible).forEach((o,i)=>{
+    const btn = document.createElement("button");
+    btn.className = "onglet" + (i===0 ? " actif" : "");
+    btn.textContent = o.label;
+    btn.onclick = () => allerA(o.id);
+    btn.dataset.onglet = o.id;
+    barre.appendChild(btn);
+  });
+  allerA("reception");
+}
+
+function allerA(idVue){
+  document.querySelectorAll(".vue").forEach(v=>v.classList.remove("active"));
+  document.getElementById("vue-"+idVue).classList.add("active");
+  document.querySelectorAll(".onglet").forEach(o=>{
+    o.classList.toggle("actif", o.dataset.onglet===idVue);
+  });
+  if(idVue==="reception") rafraichirReception();
+  if(idVue==="planning") rafraichirPlanning();
+  if(idVue==="reservations") rafraichirReservations();
+  if(idVue==="chambres") rafraichirChambres();
+  if(idVue==="menage") rafraichirMenage();
+  if(idVue==="facturation") rafraichirFacturation();
+  if(idVue==="rapports") initRapports();
+  if(idVue==="utilisateurs") rafraichirUtilisateurs();
+  if(idVue==="parametres") chargerParametres();
+}
+
+function rafraichirTout(){
+  rafraichirReception();
+}
+
+/* =========================================================
+   RECEPTION (TABLEAU DE BORD DES CHAMBRES)
+   ========================================================= */
+function nomTypeChambre(typeId){
+  const t = DB.types_chambres.find(t=>t.id===typeId);
+  return t ? t.nom : "—";
+}
+function prixTypeChambre(typeId){
+  const t = DB.types_chambres.find(t=>t.id===typeId);
+  return t ? t.prix_nuit : 0;
+}
+function libelleStatutChambre(s){
+  return {libre:"Libre", occupee:"Occupée", sale:"À nettoyer", maintenance:"Maintenance"}[s] || s;
+}
+function reservationActivePourChambre(chambreId){
+  return DB.reservations.find(r => r.chambre_id===chambreId && r.statut==="en_cours");
+}
+function prochaineReservationPourChambre(chambreId){
+  const aujourdhui = aujourdhuiISO();
+  return DB.reservations
+    .filter(r => r.chambre_id===chambreId && r.statut==="reservee" && r.date_arrivee>=aujourdhui)
+    .sort((a,b)=> a.date_arrivee.localeCompare(b.date_arrivee))[0];
+}
+
+function rafraichirReception(){
+  const grille = document.getElementById("grille-chambres-reception");
+  const stats = document.getElementById("cartes-stats-reception");
+  const chambres = DB.chambres.slice().sort((a,b)=> a.numero.localeCompare(b.numero, undefined, {numeric:true}));
+
+  const compte = {libre:0, occupee:0, sale:0, maintenance:0};
+  chambres.forEach(c=> compte[c.statut] = (compte[c.statut]||0)+1);
+  stats.innerHTML = `
+    <div class="carte-stat"><div class="valeur">${chambres.length}</div><div class="libelle">Chambres au total</div></div>
+    <div class="carte-stat"><div class="valeur">${compte.libre||0}</div><div class="libelle">Libres</div></div>
+    <div class="carte-stat"><div class="valeur">${compte.occupee||0}</div><div class="libelle">Occupées</div></div>
+    <div class="carte-stat"><div class="valeur">${compte.sale||0}</div><div class="libelle">À nettoyer</div></div>
+  `;
+
+  if(chambres.length===0){
+    grille.innerHTML = `<div class="ok-alerte">Aucune chambre enregistrée pour l'instant. Rendez-vous dans l'onglet « Chambres » pour en créer.</div>`;
+    return;
+  }
+
+  grille.innerHTML = chambres.map(c => `
+    <div class="carte-chambre ${c.statut}" onclick="ouvrirDetailChambre(${c.id})">
+      <div class="numero">${escapeHtml(c.numero)}</div>
+      <div class="type">${escapeHtml(nomTypeChambre(c.type_id))}</div>
+      <span class="statut-pastille ${c.statut}">${libelleStatutChambre(c.statut)}</span>
+    </div>
+  `).join("");
+}
+
+function ouvrirDetailChambre(chambreId){
+  const c = DB.chambres.find(c=>c.id===chambreId);
+  if(!c) return;
+  document.getElementById("titre-modale-detail-chambre").textContent = "Chambre " + c.numero + " — " + nomTypeChambre(c.type_id);
+  const corps = document.getElementById("corps-detail-chambre");
+  let html = `<p><span class="statut-pastille ${c.statut}">${libelleStatutChambre(c.statut)}</span></p>`;
+
+  if(c.statut === "occupee"){
+    const resa = reservationActivePourChambre(c.id);
+    if(resa){
+      html += `
+        <p style="font-size:13.5px;color:var(--texte-clair);">
+          Client : <b style="color:var(--texte);">${escapeHtml(resa.client_nom)}</b><br>
+          ${resa.client_telephone ? "Téléphone : "+escapeHtml(resa.client_telephone)+"<br>" : ""}
+          Séjour : du ${formaterDate(resa.date_arrivee)} au ${formaterDate(resa.date_depart)}<br>
+          Total : ${formaterMontant(resa.montant_total)}
+        </p>
+        <div class="actions-modale">
+          <button class="btn btn-accent" style="flex:1;" onclick="fermerModale('modale-detail-chambre'); effectuerCheckOut(${resa.id})">Check-out</button>
+          <button class="btn btn-discret" style="flex:1;" onclick="fermerModale('modale-detail-chambre'); allerA('facturation')">Voir facture</button>
+        </div>`;
+    }
+  } else if(c.statut === "libre"){
+    const prochaine = prochaineReservationPourChambre(c.id);
+    if(prochaine){
+      html += `<p style="font-size:13.5px;color:var(--texte-clair);">Prochaine réservation : <b>${escapeHtml(prochaine.client_nom)}</b> à partir du ${formaterDate(prochaine.date_arrivee)}.</p>`;
+    }
+    html += `
+      <div class="actions-modale">
+        <button class="btn btn-accent" style="flex:1;" onclick="fermerModale('modale-detail-chambre'); ouvrirModaleReservation(null, ${c.id})">Nouvelle réservation</button>
+        <button class="btn btn-discret" style="flex:1;" onclick="marquerChambreMaintenance(${c.id}); fermerModale('modale-detail-chambre')">Mettre en maintenance</button>
+      </div>`;
+  } else if(c.statut === "sale"){
+    html += `
+      <div class="actions-modale">
+        <button class="btn btn-accent" style="flex:1;" onclick="marquerChambrePropre(${c.id}); fermerModale('modale-detail-chambre')">✔ Marquer propre</button>
+      </div>`;
+  } else if(c.statut === "maintenance"){
+    html += `
+      <div class="actions-modale">
+        <button class="btn btn-accent" style="flex:1;" onclick="remettreChambreDisponible(${c.id}); fermerModale('modale-detail-chambre')">Remettre disponible</button>
+      </div>`;
+  }
+  corps.innerHTML = html;
+  ouvrirModale("modale-detail-chambre");
+}
+
+function effectuerCheckIn(reservationId){
+  const resa = DB.reservations.find(r=>r.id===reservationId);
+  if(!resa) return;
+  const chambre = DB.chambres.find(c=>c.id===resa.chambre_id);
+  if(chambre && chambre.statut!=="libre" && !confirm("Cette chambre n'est pas marquée « libre ». Continuer le check-in quand même ?")) return;
+  resa.statut = "en_cours";
+  if(chambre) chambre.statut = "occupee";
+  sauvegarderDB();
+  rafraichirReception();
+  rafraichirReservations();
+}
+
+function effectuerCheckOut(reservationId){
+  const resa = DB.reservations.find(r=>r.id===reservationId);
+  if(!resa) return;
+  if(!confirm("Confirmer le check-out de "+resa.client_nom+" ?")) return;
+  resa.statut = "terminee";
+  const chambre = DB.chambres.find(c=>c.id===resa.chambre_id);
+  if(chambre) chambre.statut = "sale";
+  sauvegarderDB();
+  rafraichirReception();
+  rafraichirReservations();
+  rafraichirMenage();
+  rafraichirFacturation();
+}
+
+function marquerChambrePropre(chambreId){
+  const c = DB.chambres.find(c=>c.id===chambreId);
+  if(!c) return;
+  c.statut = "libre";
+  sauvegarderDB();
+  rafraichirReception();
+  rafraichirMenage();
+}
+
+function marquerChambreMaintenance(chambreId){
+  const c = DB.chambres.find(c=>c.id===chambreId);
+  if(!c) return;
+  c.statut = "maintenance";
+  sauvegarderDB();
+  rafraichirReception();
+  rafraichirMenage();
+  rafraichirChambres();
+}
+
+function remettreChambreDisponible(chambreId){
+  const c = DB.chambres.find(c=>c.id===chambreId);
+  if(!c) return;
+  c.statut = "libre";
+  sauvegarderDB();
+  rafraichirReception();
+  rafraichirMenage();
+  rafraichirChambres();
+}
+
+/* =========================================================
+   CHAMBRES & TYPES DE CHAMBRES
+   ========================================================= */
+function rafraichirChambres(){
+  const corpsTypes = document.getElementById("corps-types-chambres");
+  corpsTypes.innerHTML = DB.types_chambres.map(t => `
+    <tr>
+      <td>${escapeHtml(t.nom)}</td>
+      <td>${formaterMontant(t.prix_nuit)}</td>
+      <td>
+        <button class="btn btn-discret" style="padding:6px 10px;font-size:12px;" onclick="ouvrirModaleTypeChambre(${t.id})">Modifier</button>
+        <button class="btn btn-danger" style="padding:6px 10px;font-size:12px;" onclick="supprimerTypeChambre(${t.id})">Supprimer</button>
+      </td>
+    </tr>
+  `).join("") || `<tr><td colspan="3" style="text-align:center;color:var(--texte-clair);">Aucun type de chambre.</td></tr>`;
+
+  const corpsChambres = document.getElementById("corps-chambres");
+  const chambres = DB.chambres.slice().sort((a,b)=> a.numero.localeCompare(b.numero, undefined, {numeric:true}));
+  corpsChambres.innerHTML = chambres.map(c => `
+    <tr>
+      <td>${escapeHtml(c.numero)}</td>
+      <td>${escapeHtml(nomTypeChambre(c.type_id))}</td>
+      <td>${escapeHtml(c.etage||"—")}</td>
+      <td><span class="statut-pastille ${c.statut}">${libelleStatutChambre(c.statut)}</span></td>
+      <td>
+        <button class="btn btn-discret" style="padding:6px 10px;font-size:12px;" onclick="ouvrirModaleChambre(${c.id})">Modifier</button>
+        <button class="btn btn-danger" style="padding:6px 10px;font-size:12px;" onclick="supprimerChambre(${c.id})">Supprimer</button>
+      </td>
+    </tr>
+  `).join("") || `<tr><td colspan="5" style="text-align:center;color:var(--texte-clair);">Aucune chambre.</td></tr>`;
+}
+
+function ouvrirModaleTypeChambre(typeId){
+  document.getElementById("type-chambre-id").value = typeId || "";
+  if(typeId){
+    const t = DB.types_chambres.find(t=>t.id===typeId);
+    document.getElementById("titre-modale-type-chambre").textContent = "Modifier le type";
+    document.getElementById("type-chambre-nom").value = t.nom;
+    document.getElementById("type-chambre-prix").value = t.prix_nuit;
+  } else {
+    document.getElementById("titre-modale-type-chambre").textContent = "Nouveau type de chambre";
+    document.getElementById("type-chambre-nom").value = "";
+    document.getElementById("type-chambre-prix").value = "";
+  }
+  ouvrirModale("modale-type-chambre");
+}
+
+function enregistrerTypeChambre(){
+  const id = document.getElementById("type-chambre-id").value;
+  const nom = document.getElementById("type-chambre-nom").value.trim();
+  const prix = parseFloat(document.getElementById("type-chambre-prix").value);
+  if(!nom || !(prix>=0)){ alert("Merci de renseigner un nom et un prix valides."); return; }
+  if(id){
+    const t = DB.types_chambres.find(t=>t.id===parseInt(id));
+    t.nom = nom; t.prix_nuit = prix;
+  } else {
+    DB.types_chambres.push({id: prochainId("type_chambre"), nom, prix_nuit: prix});
+  }
+  sauvegarderDB();
+  fermerModale("modale-type-chambre");
+  rafraichirChambres();
+}
+
+function supprimerTypeChambre(typeId){
+  if(DB.chambres.some(c=>c.type_id===typeId)){
+    alert("Impossible de supprimer ce type : des chambres l'utilisent encore.");
+    return;
+  }
+  if(!confirm("Supprimer ce type de chambre ?")) return;
+  DB.types_chambres = DB.types_chambres.filter(t=>t.id!==typeId);
+  sauvegarderDB();
+  rafraichirChambres();
+}
+
+function remplirSelecteurTypesChambres(){
+  const sel = document.getElementById("chambre-type");
+  sel.innerHTML = DB.types_chambres.map(t => `<option value="${t.id}">${escapeHtml(t.nom)} (${formaterMontant(t.prix_nuit)})</option>`).join("");
+}
+
+function ouvrirModaleChambre(chambreId){
+  if(DB.types_chambres.length===0){ alert("Créez d'abord au moins un type de chambre."); return; }
+  remplirSelecteurTypesChambres();
+  document.getElementById("chambre-id").value = chambreId || "";
+  if(chambreId){
+    const c = DB.chambres.find(c=>c.id===chambreId);
+    document.getElementById("titre-modale-chambre").textContent = "Modifier la chambre";
+    document.getElementById("chambre-numero").value = c.numero;
+    document.getElementById("chambre-type").value = c.type_id;
+    document.getElementById("chambre-etage").value = c.etage || "";
+    document.getElementById("chambre-notes").value = c.notes || "";
+  } else {
+    document.getElementById("titre-modale-chambre").textContent = "Nouvelle chambre";
+    document.getElementById("chambre-numero").value = "";
+    document.getElementById("chambre-etage").value = "";
+    document.getElementById("chambre-notes").value = "";
+  }
+  ouvrirModale("modale-chambre");
+}
+
+function enregistrerChambre(){
+  const id = document.getElementById("chambre-id").value;
+  const numero = document.getElementById("chambre-numero").value.trim();
+  const typeId = parseInt(document.getElementById("chambre-type").value);
+  const etage = document.getElementById("chambre-etage").value.trim();
+  const notes = document.getElementById("chambre-notes").value.trim();
+  if(!numero){ alert("Merci de renseigner un numéro de chambre."); return; }
+  if(id){
+    const c = DB.chambres.find(c=>c.id===parseInt(id));
+    c.numero = numero; c.type_id = typeId; c.etage = etage; c.notes = notes;
+  } else {
+    if(DB.chambres.some(c=>c.numero.toLowerCase()===numero.toLowerCase())){
+      alert("Une chambre porte déjà ce numéro."); return;
+    }
+    DB.chambres.push({id: prochainId("chambre"), numero, type_id: typeId, etage, statut:"libre", notes});
+  }
+  sauvegarderDB();
+  fermerModale("modale-chambre");
+  rafraichirChambres();
+  rafraichirReception();
+}
+
+function supprimerChambre(chambreId){
+  if(DB.reservations.some(r=>r.chambre_id===chambreId && (r.statut==="reservee"||r.statut==="en_cours"))){
+    alert("Impossible de supprimer cette chambre : elle a des réservations actives.");
+    return;
+  }
+  if(!confirm("Supprimer cette chambre ?")) return;
+  DB.chambres = DB.chambres.filter(c=>c.id!==chambreId);
+  sauvegarderDB();
+  rafraichirChambres();
+  rafraichirReception();
+}
+
+/* =========================================================
+   RESERVATIONS
+   ========================================================= */
+function chambreEstDisponible(chambreId, arrivee, depart, excludeReservationId){
+  return !DB.reservations.some(r =>
+    r.chambre_id===chambreId &&
+    r.id!==excludeReservationId &&
+    (r.statut==="reservee" || r.statut==="en_cours") &&
+    (arrivee < r.date_depart && depart > r.date_arrivee)
+  );
+}
+
+function remplirSelecteurChambresReservation(){
+  const arrivee = document.getElementById("reservation-arrivee").value;
+  const depart = document.getElementById("reservation-depart").value;
+  const sel = document.getElementById("reservation-chambre");
+  const idEnEdition = document.getElementById("reservation-id").value;
+  const chambreActuelle = sel.dataset.chambreActuelle ? parseInt(sel.dataset.chambreActuelle) : null;
+  let chambresPossibles = DB.chambres.filter(c => c.statut !== "maintenance" || c.id===chambreActuelle);
+  if(arrivee && depart && depart > arrivee){
+    chambresPossibles = chambresPossibles.filter(c =>
+      chambreEstDisponible(c.id, arrivee, depart, idEnEdition ? parseInt(idEnEdition) : null) || c.id===chambreActuelle
+    );
+  }
+  chambresPossibles.sort((a,b)=> a.numero.localeCompare(b.numero, undefined, {numeric:true}));
+  const valeurActuelle = sel.value;
+  sel.innerHTML = chambresPossibles.map(c =>
+    `<option value="${c.id}">${escapeHtml(c.numero)} — ${escapeHtml(nomTypeChambre(c.type_id))} (${formaterMontant(prixTypeChambre(c.type_id))}/nuit)</option>`
+  ).join("") || `<option value="">Aucune chambre disponible pour ces dates</option>`;
+  if(valeurActuelle && chambresPossibles.some(c=>String(c.id)===valeurActuelle)){
+    sel.value = valeurActuelle;
+  }
+  remplirPrixDepuisChambreSelectionnee();
+}
+
+function remplirPrixDepuisChambreSelectionnee(){
+  const chambreId = parseInt(document.getElementById("reservation-chambre").value);
+  const champPrix = document.getElementById("reservation-prix-nuit");
+  const chambre = DB.chambres.find(c=>c.id===chambreId);
+  if(chambre && !champPrix.dataset.modifieManuel){
+    champPrix.value = prixTypeChambre(chambre.type_id);
+  }
+  calculerMontantReservation();
+}
+document.getElementById("reservation-chambre").addEventListener("change", remplirPrixDepuisChambreSelectionnee);
+document.getElementById("reservation-prix-nuit").addEventListener("input", function(){ this.dataset.modifieManuel = "1"; });
+
+function calculerMontantReservation(){
+  const arrivee = document.getElementById("reservation-arrivee").value;
+  const depart = document.getElementById("reservation-depart").value;
+  const prix = parseFloat(document.getElementById("reservation-prix-nuit").value) || 0;
+  const nuits = (arrivee && depart) ? nuitsEntre(arrivee, depart) : 0;
+  const total = nuits * prix;
+  document.getElementById("apercu-montant-reservation").textContent =
+    nuits > 0 ? `${nuits} nuit(s) × ${formaterMontant(prix)} = ${formaterMontant(total)}` : "Choisissez des dates valides.";
+  return total;
+}
+
+function ouvrirModaleReservation(reservationId, chambrePreselectionnee, datePreselectionnee){
+  document.getElementById("reservation-id").value = reservationId || "";
+  const selChambre = document.getElementById("reservation-chambre");
+  document.getElementById("reservation-prix-nuit").dataset.modifieManuel = "";
+  selChambre.dataset.chambreActuelle = "";
+
+  if(reservationId){
+    const r = DB.reservations.find(r=>r.id===reservationId);
+    document.getElementById("titre-modale-reservation").textContent = "Modifier la réservation";
+    document.getElementById("reservation-client-nom").value = r.client_nom;
+    document.getElementById("reservation-client-telephone").value = r.client_telephone || "";
+    document.getElementById("reservation-arrivee").value = r.date_arrivee;
+    document.getElementById("reservation-depart").value = r.date_depart;
+    document.getElementById("reservation-personnes").value = r.nb_personnes || 1;
+    document.getElementById("reservation-prix-nuit").value = r.prix_nuit;
+    document.getElementById("reservation-prix-nuit").dataset.modifieManuel = "1";
+    document.getElementById("reservation-acompte").value = "";
+    document.getElementById("reservation-notes").value = r.notes || "";
+    document.getElementById("champ-acompte-reservation").style.display = "none";
+    selChambre.dataset.chambreActuelle = r.chambre_id;
+    remplirSelecteurChambresReservation();
+    selChambre.value = r.chambre_id;
+  } else {
+    document.getElementById("titre-modale-reservation").textContent = "Nouvelle réservation";
+    document.getElementById("reservation-client-nom").value = "";
+    document.getElementById("reservation-client-telephone").value = "";
+    const arriveeParDefaut = datePreselectionnee || aujourdhuiISO();
+    document.getElementById("reservation-arrivee").value = arriveeParDefaut;
+    const demain = new Date(arriveeParDefaut+"T00:00:00"); demain.setDate(demain.getDate()+1);
+    document.getElementById("reservation-depart").value = dateISO(demain);
+    document.getElementById("reservation-personnes").value = 1;
+    document.getElementById("reservation-acompte").value = "";
+    document.getElementById("reservation-notes").value = "";
+    document.getElementById("champ-acompte-reservation").style.display = "block";
+    remplirSelecteurChambresReservation();
+    if(chambrePreselectionnee) selChambre.value = chambrePreselectionnee;
+    remplirPrixDepuisChambreSelectionnee();
+  }
+  calculerMontantReservation();
+  ouvrirModale("modale-reservation");
+}
+
+function enregistrerReservation(){
+  const id = document.getElementById("reservation-id").value;
+  const clientNom = document.getElementById("reservation-client-nom").value.trim();
+  const clientTelephone = document.getElementById("reservation-client-telephone").value.trim();
+  const arrivee = document.getElementById("reservation-arrivee").value;
+  const depart = document.getElementById("reservation-depart").value;
+  const chambreId = parseInt(document.getElementById("reservation-chambre").value);
+  const personnes = parseInt(document.getElementById("reservation-personnes").value) || 1;
+  const prixNuit = parseFloat(document.getElementById("reservation-prix-nuit").value);
+  const notes = document.getElementById("reservation-notes").value.trim();
+
+  if(!clientNom){ alert("Merci de renseigner le nom du client."); return; }
+  if(!arrivee || !depart || depart <= arrivee){ alert("Merci de renseigner des dates valides (départ après arrivée)."); return; }
+  if(!chambreId){ alert("Merci de choisir une chambre disponible."); return; }
+  if(!(prixNuit>=0)){ alert("Merci de renseigner un prix par nuit valide."); return; }
+
+  const montantTotal = nuitsEntre(arrivee, depart) * prixNuit;
+
+  if(id){
+    const r = DB.reservations.find(r=>r.id===parseInt(id));
+    if(!chambreEstDisponible(chambreId, arrivee, depart, r.id)){
+      alert("Cette chambre n'est plus disponible pour ces dates."); return;
+    }
+    r.client_nom = clientNom; r.client_telephone = clientTelephone;
+    r.date_arrivee = arrivee; r.date_depart = depart;
+    r.chambre_id = chambreId; r.nb_personnes = personnes;
+    r.prix_nuit = prixNuit; r.montant_total = montantTotal; r.notes = notes;
+    sauvegarderDB();
+  } else {
+    if(!chambreEstDisponible(chambreId, arrivee, depart, null)){
+      alert("Cette chambre n'est plus disponible pour ces dates."); return;
+    }
+    const acompte = parseFloat(document.getElementById("reservation-acompte").value) || 0;
+    const nouvelleId = prochainId("reservation");
+    const resa = {
+      id: nouvelleId, client_nom: clientNom, client_telephone: clientTelephone,
+      chambre_id: chambreId, date_arrivee: arrivee, date_depart: depart,
+      nb_personnes: personnes, prix_nuit: prixNuit, montant_total: montantTotal,
+      statut: "reservee", notes, date_creation: new Date().toISOString()
+    };
+    DB.reservations.push(resa);
+    if(acompte > 0){
+      DB.paiements.push({id: prochainId("paiement"), reservation_id: nouvelleId, montant: acompte, mode_paiement:"especes", type:"acompte", date: new Date().toISOString()});
+    }
+    // Si l'arrivée est aujourd'hui (ou déjà passée) et la chambre est libre, on effectue le check-in immédiatement
+    const chambre = DB.chambres.find(c=>c.id===chambreId);
+    if(arrivee <= aujourdhuiISO() && chambre && chambre.statut==="libre"){
+      resa.statut = "en_cours";
+      chambre.statut = "occupee";
+    }
+    sauvegarderDB();
+  }
+  fermerModale("modale-reservation");
+  rafraichirReservations();
+  rafraichirReception();
+  rafraichirFacturation();
+}
+
+function libelleStatutReservation(s){
+  return {reservee:"Réservée", en_cours:"En cours", terminee:"Terminée", annulee:"Annulée"}[s] || s;
+}
+
+function rafraichirReservations(){
+  const filtre = document.getElementById("filtre-statut-reservation").value;
+  let liste = DB.reservations.slice();
+  if(filtre) liste = liste.filter(r=>r.statut===filtre);
+  liste.sort((a,b)=> b.date_creation.localeCompare(a.date_creation));
+  const corps = document.getElementById("corps-reservations");
+  corps.innerHTML = liste.map(r => {
+    const chambre = DB.chambres.find(c=>c.id===r.chambre_id);
+    const nuits = nuitsEntre(r.date_arrivee, r.date_depart);
+    let actions = "";
+    if(r.statut==="reservee"){
+      actions += `<button class="btn btn-accent" style="padding:6px 10px;font-size:12px;" onclick="effectuerCheckIn(${r.id})">Check-in</button> `;
+      actions += `<button class="btn btn-discret" style="padding:6px 10px;font-size:12px;" onclick="ouvrirModaleReservation(${r.id})">Modifier</button> `;
+      actions += `<button class="btn btn-danger" style="padding:6px 10px;font-size:12px;" onclick="annulerReservation(${r.id})">Annuler</button>`;
+    } else if(r.statut==="en_cours"){
+      actions += `<button class="btn btn-accent" style="padding:6px 10px;font-size:12px;" onclick="effectuerCheckOut(${r.id})">Check-out</button>`;
+    } else {
+      actions = `<span style="color:var(--texte-clair);font-size:12px;">—</span>`;
+    }
+    return `
+      <tr>
+        <td>${escapeHtml(r.client_nom)}${r.client_telephone ? "<br><span style='color:var(--texte-clair);font-size:11.5px;'>"+escapeHtml(r.client_telephone)+"</span>" : ""}</td>
+        <td>${chambre ? escapeHtml(chambre.numero) : "—"}</td>
+        <td>${formaterDate(r.date_arrivee)}</td>
+        <td>${formaterDate(r.date_depart)}</td>
+        <td>${nuits}</td>
+        <td>${formaterMontant(r.montant_total)}</td>
+        <td><span class="statut-pastille ${r.statut==='en_cours'?'occupee':(r.statut==='reservee'?'libre':(r.statut==='annulee'?'maintenance':'sale'))}">${libelleStatutReservation(r.statut)}</span></td>
+        <td>${actions}</td>
+      </tr>`;
+  }).join("") || `<tr><td colspan="8" style="text-align:center;color:var(--texte-clair);">Aucune réservation.</td></tr>`;
+  if(document.getElementById("vue-planning").classList.contains("active")) rafraichirPlanning();
+}
+
+function annulerReservation(reservationId){
+  if(!confirm("Annuler cette réservation ?")) return;
+  const r = DB.reservations.find(r=>r.id===reservationId);
+  if(r) r.statut = "annulee";
+  sauvegarderDB();
+  rafraichirReservations();
+  rafraichirReception();
+}
+
+/* =========================================================
+   MENAGE
+   ========================================================= */
+function rafraichirMenage(){
+  const chambresSales = DB.chambres.filter(c=>c.statut==="sale").sort((a,b)=> a.numero.localeCompare(b.numero, undefined, {numeric:true}));
+  const zoneSale = document.getElementById("zone-menage-sale");
+  zoneSale.innerHTML = chambresSales.length ? `
+    <div class="grille-chambres">
+      ${chambresSales.map(c => `
+        <div class="carte-chambre sale">
+          <div class="numero">${escapeHtml(c.numero)}</div>
+          <div class="type">${escapeHtml(nomTypeChambre(c.type_id))}</div>
+          <button class="btn btn-accent" style="width:100%;margin-top:8px;padding:8px;font-size:12.5px;" onclick="marquerChambrePropre(${c.id})">✔ Marquer propre</button>
+        </div>
+      `).join("")}
+    </div>` : `<div class="ok-alerte">Aucune chambre à nettoyer pour le moment. 👍</div>`;
+
+  const chambresMaintenance = DB.chambres.filter(c=>c.statut==="maintenance").sort((a,b)=> a.numero.localeCompare(b.numero, undefined, {numeric:true}));
+  const zoneMaint = document.getElementById("zone-menage-maintenance");
+  zoneMaint.innerHTML = chambresMaintenance.length ? `
+    <div class="grille-chambres">
+      ${chambresMaintenance.map(c => `
+        <div class="carte-chambre maintenance">
+          <div class="numero">${escapeHtml(c.numero)}</div>
+          <div class="type">${escapeHtml(nomTypeChambre(c.type_id))}</div>
+          <button class="btn btn-discret" style="width:100%;margin-top:8px;padding:8px;font-size:12.5px;" onclick="remettreChambreDisponible(${c.id})">Remettre disponible</button>
+        </div>
+      `).join("")}
+    </div>` : `<div class="ok-alerte">Aucune chambre en maintenance.</div>`;
+}
+
+/* =========================================================
+   FACTURATION
+   ========================================================= */
+function montantPayeReservation(reservationId){
+  return DB.paiements.filter(p=>p.reservation_id===reservationId).reduce((s,p)=> s+p.montant, 0);
+}
+
+function rafraichirFacturation(){
+  const liste = DB.reservations
+    .filter(r=> r.statut==="en_cours" || r.statut==="terminee")
+    .sort((a,b)=> b.date_creation.localeCompare(a.date_creation));
+  const corps = document.getElementById("corps-facturation");
+  corps.innerHTML = liste.map(r => {
+    const chambre = DB.chambres.find(c=>c.id===r.chambre_id);
+    const paye = montantPayeReservation(r.id);
+    const solde = r.montant_total - paye;
+    return `
+      <tr class="${solde>0 ? 'alerte-ligne' : ''}">
+        <td>${escapeHtml(r.client_nom)}</td>
+        <td>${chambre ? escapeHtml(chambre.numero) : "—"}</td>
+        <td>${formaterDate(r.date_arrivee)}</td>
+        <td>${formaterDate(r.date_depart)}</td>
+        <td>${formaterMontant(r.montant_total)}</td>
+        <td>${formaterMontant(paye)}</td>
+        <td><b>${formaterMontant(solde)}</b></td>
+        <td>${r.statut==="terminee" ? "Terminée" : "En cours"}</td>
+        <td>
+          ${solde>0 ? `<button class="btn btn-accent" style="padding:6px 10px;font-size:12px;" onclick="ouvrirModalePaiement(${r.id})">+ Paiement</button>` : ""}
+          <button class="btn btn-discret" style="padding:6px 10px;font-size:12px;" onclick="imprimerFacture(${r.id})">🖨 Facture</button>
+        </td>
+      </tr>`;
+  }).join("") || `<tr><td colspan="9" style="text-align:center;color:var(--texte-clair);">Aucune facture pour le moment.</td></tr>`;
+}
+
+function ouvrirModalePaiement(reservationId){
+  const r = DB.reservations.find(r=>r.id===reservationId);
+  if(!r) return;
+  const paye = montantPayeReservation(r.id);
+  const solde = r.montant_total - paye;
+  document.getElementById("paiement-reservation-id").value = reservationId;
+  document.getElementById("apercu-solde-paiement").textContent =
+    `Total : ${formaterMontant(r.montant_total)} · Déjà payé : ${formaterMontant(paye)} · Solde : ${formaterMontant(solde)}`;
+  document.getElementById("paiement-montant").value = solde > 0 ? solde : "";
+  document.getElementById("paiement-mode").value = "especes";
+  ouvrirModale("modale-paiement");
+}
+
+function enregistrerPaiement(){
+  const reservationId = parseInt(document.getElementById("paiement-reservation-id").value);
+  const montant = parseFloat(document.getElementById("paiement-montant").value);
+  const mode = document.getElementById("paiement-mode").value;
+  if(!(montant>0)){ alert("Merci de renseigner un montant valide."); return; }
+  DB.paiements.push({id: prochainId("paiement"), reservation_id: reservationId, montant, mode_paiement: mode, type:"paiement", date: new Date().toISOString()});
+  sauvegarderDB();
+  fermerModale("modale-paiement");
+  rafraichirFacturation();
+}
+
+function libelleModePaiement(m){
+  return {especes:"Espèces", carte:"Carte", mobile:"Mobile Money"}[m] || m;
+}
+
+function imprimerFacture(reservationId){
+  const r = DB.reservations.find(r=>r.id===reservationId);
+  if(!r) return;
+  const chambre = DB.chambres.find(c=>c.id===r.chambre_id);
+  const paiements = DB.paiements.filter(p=>p.reservation_id===reservationId);
+  const paye = paiements.reduce((s,p)=> s+p.montant,0);
+  const solde = r.montant_total - paye;
+  const p = DB.parametres;
+  const fenetre = window.open("", "_blank");
+  fenetre.document.write(`
+    <html><head><title>Facture — ${escapeHtml(r.client_nom)}</title>
+    <style>
+      body{font-family:Arial,sans-serif;padding:24px;color:#1a2233;}
+      h1{font-size:18px;margin:0 0 4px 0;}
+      .info{font-size:12px;color:#555;margin-bottom:18px;}
+      table{width:100%;border-collapse:collapse;margin-top:14px;}
+      td,th{padding:8px;border-bottom:1px solid #ddd;text-align:left;font-size:13px;}
+      .total{font-weight:bold;font-size:15px;}
+    </style></head><body>
+    <h1>${escapeHtml(p.nom_hotel||"Mon Hôtel")}</h1>
+    <div class="info">${escapeHtml(p.adresse||"")} ${p.contact? " · "+escapeHtml(p.contact):""} ${p.ifu? " · IFU: "+escapeHtml(p.ifu):""}</div>
+    <h2 style="font-size:15px;">Facture — ${escapeHtml(r.client_nom)}</h2>
+    <p style="font-size:13px;">
+      Chambre : ${chambre?escapeHtml(chambre.numero):"—"} (${escapeHtml(nomTypeChambre(chambre?chambre.type_id:null))})<br>
+      Séjour : du ${formaterDate(r.date_arrivee)} au ${formaterDate(r.date_depart)} (${nuitsEntre(r.date_arrivee,r.date_depart)} nuit(s))<br>
+      Prix/nuit : ${formaterMontant(r.prix_nuit)}
+    </p>
+    <table>
+      <tr><td>Total du séjour</td><td class="total">${formaterMontant(r.montant_total)}</td></tr>
+      ${paiements.map(pm=>`<tr><td>Paiement (${libelleModePaiement(pm.mode_paiement)}) — ${new Date(pm.date).toLocaleDateString("fr-FR")}</td><td>${formaterMontant(pm.montant)}</td></tr>`).join("")}
+      <tr><td><b>Solde restant</b></td><td class="total">${formaterMontant(solde)}</td></tr>
+    </table>
+    <script>window.print();<\/script>
+    </body></html>
+  `);
+  fenetre.document.close();
+}
+
+/* =========================================================
+   RAPPORTS
+   ========================================================= */
+function initRapports(){
+  if(!document.getElementById("rapport-date-debut").value){
+    definirPeriodeRapide(30);
+  } else {
+    afficherRapportPeriode();
+  }
+}
+
+function definirPeriodeRapide(jours){
+  const fin = new Date();
+  const debut = new Date();
+  debut.setDate(debut.getDate() - jours);
+  document.getElementById("rapport-date-debut").value = dateISO(debut);
+  document.getElementById("rapport-date-fin").value = dateISO(fin);
+  afficherRapportPeriode();
+}
+
+function afficherRapportPeriode(){
+  const debut = document.getElementById("rapport-date-debut").value;
+  const fin = document.getElementById("rapport-date-fin").value;
+  if(!debut || !fin) return;
+
+  const resasCreees = DB.reservations.filter(r => {
+    const dc = r.date_creation.slice(0,10);
+    return dc >= debut && dc <= fin && r.statut !== "annulee";
+  });
+
+  const paiementsPeriode = DB.paiements.filter(p => {
+    const dp = p.date.slice(0,10);
+    return dp >= debut && dp <= fin;
+  });
+  const revenuEncaisse = paiementsPeriode.reduce((s,p)=> s+p.montant, 0);
+
+  // Nuitées vendues sur la période = pour chaque réservation active/terminée, nombre de nuits qui chevauchent [debut, fin]
+  let nuiteesVendues = 0;
+  DB.reservations.filter(r=> r.statut==="en_cours" || r.statut==="terminee").forEach(r=>{
+    const a = r.date_arrivee < debut ? debut : r.date_arrivee;
+    const d = r.date_depart > fin ? fin : r.date_depart;
+    const n = nuitsEntre(a, d);
+    if(n>0) nuiteesVendues += n;
+  });
+  const chambresTotal = DB.chambres.length || 1;
+  const joursPeriode = Math.max(1, Math.round((new Date(fin)-new Date(debut))/86400000)+1);
+  const nuiteesDisponibles = chambresTotal * joursPeriode;
+  const tauxOccupation = nuiteesDisponibles>0 ? Math.round((nuiteesVendues/nuiteesDisponibles)*100) : 0;
+
+  const chambresOccupeesMaintenant = DB.chambres.filter(c=>c.statut==="occupee").length;
+
+  document.getElementById("sous-titre-impression-rapport").textContent = `Du ${formaterDate(debut)} au ${formaterDate(fin)}`;
+  document.getElementById("cartes-stats-rapport").innerHTML = `
+    <div class="carte-stat"><div class="valeur">${formaterMontant(revenuEncaisse)}</div><div class="libelle">Revenu encaissé</div></div>
+    <div class="carte-stat"><div class="valeur">${resasCreees.length}</div><div class="libelle">Réservations créées</div></div>
+    <div class="carte-stat"><div class="valeur">${nuiteesVendues}</div><div class="libelle">Nuitées vendues</div></div>
+    <div class="carte-stat"><div class="valeur">${tauxOccupation}%</div><div class="libelle">Taux d'occupation</div></div>
+    <div class="carte-stat"><div class="valeur">${chambresOccupeesMaintenant}</div><div class="libelle">Chambres occupées actuellement</div></div>
+  `;
+
+  const corps = document.getElementById("corps-rapport-reservations");
+  corps.innerHTML = resasCreees.slice().sort((a,b)=> b.date_creation.localeCompare(a.date_creation)).map(r=>{
+    const chambre = DB.chambres.find(c=>c.id===r.chambre_id);
+    return `<tr>
+      <td>${escapeHtml(r.client_nom)}</td>
+      <td>${chambre?escapeHtml(chambre.numero):"—"}</td>
+      <td>${formaterDate(r.date_arrivee)}</td>
+      <td>${formaterDate(r.date_depart)}</td>
+      <td>${formaterMontant(r.montant_total)}</td>
+    </tr>`;
+  }).join("") || `<tr><td colspan="5" style="text-align:center;color:var(--texte-clair);">Aucune réservation sur cette période.</td></tr>`;
+}
+
+/* =========================================================
+   UTILISATEURS
+   ========================================================= */
+function rafraichirUtilisateurs(){
+  const corps = document.getElementById("corps-utilisateurs");
+  corps.innerHTML = DB.utilisateurs.map(u => `
+    <tr>
+      <td>${escapeHtml(u.nom_utilisateur)}</td>
+      <td>${escapeHtml(u.nom_complet||"")}</td>
+      <td>${u.role==="admin"?"Administrateur":"Réceptionniste"}</td>
+      <td>${u.actif ? "Oui" : "Non"}</td>
+      <td>
+        <button class="btn btn-discret" style="padding:6px 10px;font-size:12px;" onclick="ouvrirModaleUtilisateur(${u.id})">Modifier</button>
+        ${u.id!==utilisateurConnecte.id ? `<button class="btn btn-danger" style="padding:6px 10px;font-size:12px;" onclick="desactiverUtilisateur(${u.id})">${u.actif?"Désactiver":"Réactiver"}</button>` : ""}
+      </td>
+    </tr>
+  `).join("");
+}
+
+function ouvrirModaleUtilisateur(userId){
+  document.getElementById("util-id").value = userId || "";
+  document.getElementById("util-mdp").placeholder = "";
+  if(userId){
+    const u = DB.utilisateurs.find(u=>u.id===userId);
+    document.getElementById("titre-modale-utilisateur").textContent = "Modifier l'utilisateur";
+    document.getElementById("util-nom-utilisateur").value = u.nom_utilisateur;
+    document.getElementById("util-nom-complet").value = u.nom_complet || "";
+    document.getElementById("util-mdp").value = "";
+    document.getElementById("util-mdp").placeholder = "Laisser vide pour ne pas changer";
+    document.getElementById("util-role").value = u.role;
+    document.getElementById("bouton-enregistrer-utilisateur").textContent = "Enregistrer";
+  } else {
+    document.getElementById("titre-modale-utilisateur").textContent = "Nouvel utilisateur";
+    document.getElementById("util-nom-utilisateur").value = "";
+    document.getElementById("util-nom-complet").value = "";
+    document.getElementById("util-mdp").value = "";
+    document.getElementById("util-role").value = "reception";
+    document.getElementById("bouton-enregistrer-utilisateur").textContent = "Créer";
+  }
+  ouvrirModale("modale-utilisateur");
+}
+
+function enregistrerUtilisateur(){
+  const id = document.getElementById("util-id").value;
+  const nomUtilisateur = document.getElementById("util-nom-utilisateur").value.trim();
+  const nomComplet = document.getElementById("util-nom-complet").value.trim();
+  const mdp = document.getElementById("util-mdp").value;
+  const role = document.getElementById("util-role").value;
+  if(!nomUtilisateur){ alert("Merci de renseigner un nom d'utilisateur."); return; }
+  if(!id && !mdp){ alert("Merci de renseigner un mot de passe."); return; }
+
+  if(id){
+    const u = DB.utilisateurs.find(u=>u.id===parseInt(id));
+    if(DB.utilisateurs.some(x=>x.id!==u.id && x.nom_utilisateur.toLowerCase()===nomUtilisateur.toLowerCase())){
+      alert("Ce nom d'utilisateur est déjà pris."); return;
+    }
+    u.nom_utilisateur = nomUtilisateur; u.nom_complet = nomComplet; u.role = role;
+    if(mdp) u.mdp_hash = hashSimple(mdp);
+  } else {
+    if(DB.utilisateurs.some(x=>x.nom_utilisateur.toLowerCase()===nomUtilisateur.toLowerCase())){
+      alert("Ce nom d'utilisateur est déjà pris."); return;
+    }
+    DB.utilisateurs.push({
+      id: prochainId("utilisateur"), nom_utilisateur: nomUtilisateur, nom_complet: nomComplet,
+      mdp_hash: hashSimple(mdp), role, actif: true, date_creation: new Date().toISOString()
+    });
+  }
+  sauvegarderDB();
+  fermerModale("modale-utilisateur");
+  rafraichirUtilisateurs();
+}
+
+function desactiverUtilisateur(userId){
+  const u = DB.utilisateurs.find(u=>u.id===userId);
+  if(!u) return;
+  u.actif = !u.actif;
+  sauvegarderDB();
+  rafraichirUtilisateurs();
+}
+
+/* =========================================================
+   PARAMETRES
+   ========================================================= */
+function chargerParametres(){
+  document.getElementById("param-nom-hotel").value = DB.parametres.nom_hotel || "";
+  document.getElementById("param-ifu").value = DB.parametres.ifu || "";
+  document.getElementById("param-contact").value = DB.parametres.contact || "";
+  document.getElementById("param-adresse").value = DB.parametres.adresse || "";
+  afficherCodeAppareilPartout();
+  miseAJourStatutLicenceParametres();
+}
+
+function enregistrerParametres(){
+  DB.parametres.nom_hotel = document.getElementById("param-nom-hotel").value.trim() || "Mon Hôtel";
+  DB.parametres.ifu = document.getElementById("param-ifu").value.trim();
+  DB.parametres.contact = document.getElementById("param-contact").value.trim();
+  DB.parametres.adresse = document.getElementById("param-adresse").value.trim();
+  sauvegarderDB();
+  document.getElementById("nom-hotel-barre").textContent = DB.parametres.nom_hotel;
+  document.querySelectorAll(".entete-hotel-info").forEach(el=>{
+    el.textContent = enteteImpressionHotel();
+  });
+  alert("Paramètres enregistrés.");
+}
+
+function enteteImpressionHotel(){
+  const p = DB.parametres;
+  const morceaux = [p.nom_hotel];
+  if(p.adresse) morceaux.push(p.adresse);
+  if(p.contact) morceaux.push(p.contact);
+  if(p.ifu) morceaux.push("IFU: "+p.ifu);
+  return morceaux.filter(Boolean).join(" · ");
+}
+
+/* =========================================================
+   SAUVEGARDE / RESTAURATION
+   ========================================================= */
+function exporterSauvegarde(){
+  const donnees = JSON.stringify(DB, null, 2);
+  const blob = new Blob([donnees], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const date = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = `easyhotel-sauvegarde-${date}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function importerSauvegarde(evenement){
+  const fichier = evenement.target.files[0];
+  if(!fichier) return;
+  const lecteur = new FileReader();
+  lecteur.onload = (e) => {
+    try{
+      const donnees = JSON.parse(e.target.result);
+      if(!donnees.parametres || !donnees.utilisateurs){ throw new Error("Format invalide"); }
+      if(!confirm("Cette opération va remplacer toutes les données actuelles par celles du fichier. Continuer ?")) return;
+      DB = donnees;
+      migrerDB();
+      sauvegarderDB();
+      alert("Sauvegarde restaurée avec succès. L'application va se recharger.");
+      window.location.reload();
+    }catch(err){
+      alert("Fichier de sauvegarde invalide.");
+    }
+  };
+  lecteur.readAsText(fichier);
+  evenement.target.value = "";
+}
+
+/* =========================================================
+   IMPRESSION
+   ========================================================= */
+function imprimerVue(idVue, titre){
+  document.querySelectorAll(".vue").forEach(v=>v.classList.remove("impression-active"));
+  const vue = document.getElementById(idVue);
+  vue.classList.add("impression-active");
+  const entete = vue.querySelector(".entete-hotel-info");
+  if(entete) entete.textContent = enteteImpressionHotel();
+  window.print();
+  setTimeout(()=> vue.classList.remove("impression-active"), 500);
+}
+
+/* =========================================================
+   UTILITAIRES GENERIQUES
+   ========================================================= */
+function ouvrirModale(id){ document.getElementById(id).classList.add("active"); }
+function fermerModale(id){ document.getElementById(id).classList.remove("active"); }
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+/* =========================================================
+   LICENCE / ACTIVATION
+   =========================================================
+   Même principe que les autres logiciels KINVOS : un code appareil
+   unique est généré sur ce poste, et KINVOS fournit en retour un
+   code d'activation signé (HMAC-SHA256) valable uniquement pour cet
+   appareil et jusqu'à une date d'expiration donnée.
+*/
+/* =========================================================
+   LICENCE — VÉRIFICATION AUPRÈS DU SERVEUR CENTRAL KINVOS
+   =========================================================
+   Un code appareil unique est généré sur ce poste et envoyé, avec la
+   clé de licence saisie, au serveur central KINVOS pour vérification
+   en temps réel (POST /api/verify). Un cache local permet un usage
+   hors-ligne temporaire (LICENCE_DELAI_GRACE_JOURS jours).
+*/
+const CLE_STOCKAGE_APPAREIL = "easyhotel_device_id_v1";
+const KINVOS_SERVEUR_URL = "https://licencemanager.ficheprobot.workers.dev/api/verify";
+const LICENCE_DELAI_GRACE_JOURS = 7;
+
+function genererCodeAppareilAleatoire(){
+  const alphabet = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+  const octets = new Uint8Array(10);
+  crypto.getRandomValues(octets);
+  let bits = 0, valeur = 0, sortie = "";
+  for(let i=0;i<octets.length;i++){
+    valeur = (valeur << 8) | octets[i];
+    bits += 8;
+    while(bits >= 5){
+      sortie += alphabet[(valeur >>> (bits - 5)) & 31];
+      bits -= 5;
+    }
+  }
+  if(bits > 0) sortie += alphabet[(valeur << (5 - bits)) & 31];
+  return sortie.slice(0,16);
+}
+
+function obtenirCodeAppareil(){
+  let code = localStorage.getItem(CLE_STOCKAGE_APPAREIL);
+  if(!code){
+    code = genererCodeAppareilAleatoire();
+    localStorage.setItem(CLE_STOCKAGE_APPAREIL, code);
+  }
+  return code;
+}
+
+function formaterCodeAffichage(code){
+  return (code.match(/.{1,4}/g)||[code]).join("-");
+}
+
+async function verifierAupresDuServeur(cleLicence, codeAppareil){
+  try{
+    const reponse = await fetch(KINVOS_SERVEUR_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ license_key: cleLicence, device_fingerprint: codeAppareil })
+    });
+    const resultat = await reponse.json();
+    return { ok:true, ...resultat };
+  } catch(e){
+    return { ok:false };
+  }
+}
+
+const MESSAGES_ERREUR_LICENCE = {
+  CLE_INCONNUE: "Cette clé de licence est introuvable.",
+  LICENCE_EXPIREE: "Cette licence a expiré.",
+  LICENCE_DESACTIVEE: "Cette licence a été désactivée.",
+  LICENCE_DEJA_UTILISEE: "Cette licence est déjà utilisée sur le nombre maximal d'appareils autorisés.",
+  PARAMETRES_MANQUANTS: "Code d'activation invalide."
+};
+
+function licenceValide(){
+  if(!DB.licence || !DB.licence.activee) return false;
+  if(DB.licence.date_expiration === null) return true; // illimitée / à vie
+  return !!(DB.licence.date_expiration && new Date(DB.licence.date_expiration).getTime() > Date.now());
+}
+
+function licenceEnGraceHorsLigne(){
+  if(!DB.licence || !DB.licence.activee || !DB.licence.derniere_verification) return false;
+  const joursDepuisVerif = (Date.now() - new Date(DB.licence.derniere_verification).getTime()) / 86400000;
+  return joursDepuisVerif <= LICENCE_DELAI_GRACE_JOURS && licenceValide();
+}
+
+function afficherCodeAppareilPartout(){
+  const code = formaterCodeAffichage(obtenirCodeAppareil());
+  const a = document.getElementById("code-appareil-activation");
+  const b = document.getElementById("code-appareil-parametres");
+  if(a) a.value = code;
+  if(b) b.value = code;
+}
+
+function miseAJourStatutLicenceParametres(){
+  const el = document.getElementById("statut-licence-parametres");
+  if(!el) return;
+  if(!DB.licence || !DB.licence.activee){
+    el.textContent = "Aucune licence active.";
+    el.style.color = "var(--or-dark)";
+    return;
+  }
+  if(DB.licence.date_expiration === null){
+    el.textContent = "Licence active — illimitée (sans date d'expiration).";
+    el.style.color = "var(--texte-clair)";
+    return;
+  }
+  const exp = new Date(DB.licence.date_expiration);
+  const joursRestants = Math.ceil((exp.getTime() - Date.now())/86400000);
+  if(joursRestants > 0){
+    el.textContent = `Licence active jusqu'au ${exp.toLocaleDateString("fr-FR")} (${joursRestants} jour(s) restant(s)).`;
+    el.style.color = joursRestants <= 7 ? "var(--or-dark)" : "var(--texte-clair)";
+  } else {
+    el.textContent = `Licence expirée depuis le ${exp.toLocaleDateString("fr-FR")}.`;
+    el.style.color = "var(--or-dark)";
+  }
+}
+
+function afficherBanniereLicence(){
+  const banniere = document.getElementById("banniere-licence");
+  if(!banniere) return;
+  if(!licenceValide() || !DB.licence.date_expiration){ banniere.style.display = "none"; return; }
+  const exp = new Date(DB.licence.date_expiration);
+  const joursRestants = Math.ceil((exp.getTime() - Date.now())/86400000);
+  if(joursRestants <= 7){
+    banniere.textContent = joursRestants <= 1
+      ? `⚠ Votre licence EasyHotel expire aujourd'hui ou demain (${exp.toLocaleDateString("fr-FR")}). Contactez KINVOS pour renouveler.`
+      : `⚠ Votre licence EasyHotel expire dans ${joursRestants} jours (${exp.toLocaleDateString("fr-FR")}). Contactez KINVOS pour renouveler.`;
+    banniere.style.display = "block";
+  } else {
+    banniere.style.display = "none";
+  }
+}
+
+async function verifierLicence(){
+  if(!DB.licence) DB.licence = { activee:false };
+  afficherCodeAppareilPartout();
+  miseAJourStatutLicenceParametres();
+
+  if(licenceEnGraceHorsLigne()){
+    document.getElementById("ecran-activation").style.display = "none";
+    document.getElementById("ecran-connexion").style.display = "flex";
+    afficherBanniereLicence();
+    revalideLicenceEnArrierePlan();
+    return;
+  }
+
+  if(DB.licence.activee && DB.licence.cle){
+    const resultat = await verifierAupresDuServeur(DB.licence.cle, obtenirCodeAppareil());
+    if(resultat.ok && resultat.valid){
+      DB.licence.date_expiration = resultat.expiration || null;
+      DB.licence.derniere_verification = new Date().toISOString();
+      sauvegarderDB();
+      document.getElementById("ecran-activation").style.display = "none";
+      document.getElementById("ecran-connexion").style.display = "flex";
+      miseAJourStatutLicenceParametres();
+      afficherBanniereLicence();
+      return;
+    }
+    if(resultat.ok && !resultat.valid){
+      DB.licence.activee = false;
+    }
+  }
+
+  const dejaActivee = !!(DB.licence && DB.licence.activee);
+  document.getElementById("titre-activation").textContent = dejaActivee ? "🔒 Licence expirée" : "🔒 Activation d'EasyHotel";
+  document.getElementById("sous-titre-activation").textContent = dejaActivee
+    ? "Votre licence a expiré ou n'a pas pu être revérifiée. Contactez KINVOS."
+    : "Ce logiciel nécessite une clé de licence";
+  document.getElementById("ecran-connexion").style.display = "none";
+  document.getElementById("app").style.display = "none";
+  document.getElementById("ecran-activation").style.display = "flex";
+}
+
+async function revalideLicenceEnArrierePlan(){
+  if(!DB.licence || !DB.licence.cle) return;
+  const resultat = await verifierAupresDuServeur(DB.licence.cle, obtenirCodeAppareil());
+  if(resultat.ok){
+    if(resultat.valid){
+      DB.licence.date_expiration = resultat.expiration || null;
+      DB.licence.derniere_verification = new Date().toISOString();
+    } else {
+      DB.licence.activee = false;
+    }
+    sauvegarderDB();
+    miseAJourStatutLicenceParametres();
+    afficherBanniereLicence();
+  }
+}
+
+async function activerLicence(){
+  const erreur = document.getElementById("erreur-activation");
+  erreur.textContent = "";
+  const nomSaisi = (document.getElementById("input-nom-activation").value || "").trim();
+  const cleSaisie = (document.getElementById("input-cle-licence").value || "").trim().toUpperCase();
+  if(!nomSaisi){ erreur.textContent = "Veuillez indiquer votre nom."; return; }
+  if(!cleSaisie){ erreur.textContent = "Veuillez saisir une clé de licence."; return; }
+  const resultat = await verifierAupresDuServeur(cleSaisie, obtenirCodeAppareil());
+  if(!resultat.ok){ erreur.textContent = "Impossible de joindre le serveur de licences. Vérifiez votre connexion internet."; return; }
+  if(!resultat.valid){ erreur.textContent = MESSAGES_ERREUR_LICENCE[resultat.reason] || "Clé de licence invalide."; return; }
+  DB.licence = {
+    activee:true,
+    cle: cleSaisie,
+    nom: nomSaisi,
+    date_expiration: resultat.expiration || null,
+    date_activation: new Date().toISOString(),
+    derniere_verification: new Date().toISOString()
+  };
+  sauvegarderDB();
+  document.getElementById("input-cle-licence").value = "";
+  verifierLicence();
+}
+
+async function renouvelerLicenceDepuisParametres(){
+  const erreur = document.getElementById("erreur-renouvellement-licence");
+  erreur.textContent = "";
+  const champ = document.getElementById("param-nouveau-code-licence");
+  const cleSaisie = (champ.value || "").trim().toUpperCase();
+  if(!cleSaisie){ erreur.textContent = "Veuillez saisir une clé de licence."; return; }
+  const resultat = await verifierAupresDuServeur(cleSaisie, obtenirCodeAppareil());
+  if(!resultat.ok){ erreur.textContent = "Impossible de joindre le serveur de licences. Vérifiez votre connexion internet."; return; }
+  if(!resultat.valid){ erreur.textContent = MESSAGES_ERREUR_LICENCE[resultat.reason] || "Clé de licence invalide."; return; }
+  DB.licence = {
+    activee:true,
+    cle: cleSaisie,
+    date_expiration: resultat.expiration || null,
+    date_activation: new Date().toISOString(),
+    derniere_verification: new Date().toISOString()
+  };
+  sauvegarderDB();
+  champ.value = "";
+  miseAJourStatutLicenceParametres();
+  afficherBanniereLicence();
+  alert("Licence mise à jour avec succès.");
+}
+
+function copierTexte(idElement){
+  const el = document.getElementById(idElement);
+  if(!el) return;
+  const texte = el.value !== undefined ? el.value : el.textContent;
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(texte).catch(()=>{ copierTexteRepli(el); });
+  } else {
+    copierTexteRepli(el);
+  }
+}
+function copierTexteRepli(el){
+  el.select && el.select();
+  try{ document.execCommand("copy"); }catch(e){ /* ignorer */ }
+}
+
+setInterval(()=>{ if(DB) verifierLicence(); }, 15*60*1000);
+
+/* =========================================================
+   INITIALISATION
+   ========================================================= */
+chargerDB();
+verifierLicence();
+
+if("serviceWorker" in navigator){
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch(()=>{ /* pas de serveur = pas grave */ });
+  });
+}
+
+/* =========================================================
+   INSTALLATION PWA (bouton d'installation)
+   ========================================================= */
+let evenementInstallationDiffere = null;
+const boutonInstallerPWA = document.getElementById("btn-installer-pwa");
+
+function appEstDejaInstallee() {
+  return window.matchMedia("(display-mode: standalone)").matches
+    || window.navigator.standalone === true;
+}
+
+function estIOS() {
+  return /iphone|ipad|ipod/i.test(window.navigator.userAgent);
+}
+
+if (!appEstDejaInstallee() && estIOS()) {
+  // Safari iOS ne déclenche jamais 'beforeinstallprompt' : on affiche
+  // le bouton directement et on montre des instructions manuelles au clic.
+  boutonInstallerPWA.style.display = "flex";
+}
+
+window.addEventListener("beforeinstallprompt", (evenement) => {
+  evenement.preventDefault();
+  evenementInstallationDiffere = evenement;
+  if (!appEstDejaInstallee()) {
+    boutonInstallerPWA.style.display = "flex";
+  }
+});
+
+window.addEventListener("appinstalled", () => {
+  boutonInstallerPWA.style.display = "none";
+  evenementInstallationDiffere = null;
+});
+
+async function installerPWA() {
+  if (estIOS() && !evenementInstallationDiffere) {
+    alert("Pour installer EasyHotel sur iPhone/iPad :\n\n1. Appuyez sur le bouton Partager (icône carré avec une flèche) en bas de Safari\n2. Choisissez « Sur l'écran d'accueil »\n3. Appuyez sur « Ajouter »");
+    return;
+  }
+  if (!evenementInstallationDiffere) {
+    alert("L'installation n'est pas disponible pour le moment. Sur ordinateur, vous pouvez aussi cliquer sur l'icône d'installation (⊕) dans la barre d'adresse de votre navigateur.");
+    return;
+  }
+  evenementInstallationDiffere.prompt();
+  await evenementInstallationDiffere.userChoice;
+  evenementInstallationDiffere = null;
+  boutonInstallerPWA.style.display = "none";
+}
+
+</script>
+</body>
+</html>
